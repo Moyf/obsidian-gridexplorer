@@ -11,12 +11,14 @@ const TRANSLATIONS = {
         'REFRESH': '重新整理',
         'RESELECT_FOLDER': '重新選擇位置',
         'GO_UP': '回上層資料夾',
+        'NO_BACKLINKS': '沒有反向連結',
 
         // 視圖標題
         'GRID_VIEW_TITLE': '網格視圖',
         'BOOKMARKS_MODE': '書籤',
         'FOLDER_MODE': '資料夾',
         'SEARCH_RESULTS': '搜尋結果',
+        'BACKLINKS_MODE': '反向連結',
 
         // 排序選項
         'SORT_NAME_ASC': '名稱 (A → Z)',
@@ -50,13 +52,15 @@ const TRANSLATIONS = {
         'SORTING': 'Sort by',
         'REFRESH': 'Refresh',
         'RESELECT_FOLDER': 'Reselect Folder',
-        'GO_UP': 'Go to the previous folder',
+        'GO_UP': 'Go Up',
+        'NO_BACKLINKS': 'No Backlinks',
 
         // View Titles
         'GRID_VIEW_TITLE': 'Grid View',
         'BOOKMARKS_MODE': 'Bookmarks',
         'FOLDER_MODE': 'Folder',
         'SEARCH_RESULTS': 'Search Results',
+        'BACKLINKS_MODE': 'Backlinks',
 
         // Sort Options
         'SORT_NAME_ASC': 'Name (A → Z)',
@@ -91,12 +95,14 @@ const TRANSLATIONS = {
         'REFRESH': '重新整理',
         'RESELECT_FOLDER': '重新选择位置',
         'GO_UP': '回上层文件夹',
+        'NO_BACKLINKS': '没有反向链接',
 
         // 视图标题
         'GRID_VIEW_TITLE': '网格视图',
         'BOOKMARKS_MODE': '书签',
         'FOLDER_MODE': '文件夹',
         'SEARCH_RESULTS': '搜索结果',
+        'BACKLINKS_MODE': '反向链接',
 
         // 排序选项
         'SORT_NAME_ASC': '名称 (A → Z)',
@@ -130,13 +136,15 @@ const TRANSLATIONS = {
         'SORTING': 'ソート',
         'REFRESH': 'リフレッシュ',
         'RESELECT_FOLDER': 'フォルダを再選択',
-        'GO_UP': '前のディレクトリへ移動する',
+        'GO_UP': '上へ',
+        'NO_BACKLINKS': 'バックリンクはありません',
 
-        // ビューのタイトル
+        // ビュータイトル
         'GRID_VIEW_TITLE': 'グリッドビュー',
         'BOOKMARKS_MODE': 'ブックマーク',
         'FOLDER_MODE': 'フォルダ',
         'SEARCH_RESULTS': '検索結果',
+        'BACKLINKS_MODE': 'バックリンク',
 
         // ソートオプション
         'SORT_NAME_ASC': '名前 (A → Z)',
@@ -268,6 +276,8 @@ class GridView extends ItemView {
             return this.sourcePath;
         } else if (this.sourceMode === 'search') {
             return t('SEARCH_RESULTS');
+        } else if (this.sourceMode === 'backlinks') {
+            return t('BACKLINKS_MODE');
         }
     }
 
@@ -395,6 +405,42 @@ class GridView extends ItemView {
                 }
             }
             return [];
+        } else if (this.sourceMode === 'backlinks') {
+            // 反向連結模式：找出所有引用當前筆記的檔案
+            const activeFile = this.app.workspace.getActiveFile();
+            if (!activeFile) {
+                return [];
+            }
+
+            const backlinks = new Set();
+            // 使用 resolvedLinks 來找出反向連結
+            const resolvedLinks = this.app.metadataCache.resolvedLinks;
+            for (const [sourcePath, links] of Object.entries(resolvedLinks)) {
+                if (Object.keys(links).includes(activeFile.path)) {
+                    const sourceFile = this.app.vault.getAbstractFileByPath(sourcePath);
+                    if (sourceFile && sourceFile.extension === 'md') {
+                        backlinks.add(sourceFile);
+                    }
+                }
+            }
+
+            return Array.from(backlinks).sort((a, b) => {
+                if (this.sortType === 'name-asc') {
+                    return a.basename.localeCompare(b.basename);
+                } else if (this.sortType === 'name-desc') {
+                    return b.basename.localeCompare(a.basename);
+                } else if (this.sortType === 'mtime-desc') {
+                    return b.stat.mtime - a.stat.mtime;
+                } else if (this.sortType === 'mtime-asc') {
+                    return a.stat.mtime - b.stat.mtime;
+                } else if (this.sortType === 'ctime-desc') {
+                    return b.stat.ctime - a.stat.ctime;
+                } else if (this.sortType === 'ctime-asc') {
+                    return a.stat.ctime - b.stat.ctime;
+                } else if (this.sortType === 'random') {
+                    return Math.random() - 0.5;
+                }
+            });
         } else {
             // 書籤模式
             const bookmarksPlugin = this.app.internalPlugins.plugins.bookmarks;
@@ -444,6 +490,8 @@ class GridView extends ItemView {
             this.leaf.view.titleEl.textContent = this.sourcePath;
         } else if (this.sourceMode === 'search') {
             this.leaf.view.titleEl.textContent = t('SEARCH_RESULTS');
+        } else if (this.sourceMode === 'backlinks') {
+            this.leaf.view.titleEl.textContent = t('BACKLINKS_MODE');
         }
 
         // 恢復捲動位置
@@ -467,7 +515,13 @@ class GridView extends ItemView {
 
         // 如果是書籤模式且書籤插件未啟用，顯示提示
         if (this.sourceMode === 'bookmarks' && !this.app.internalPlugins.plugins.bookmarks?.enabled) {
-            container.createEl('p', { text: t('BOOKMARKS_PLUGIN_DISABLED') });
+            new Notice(t(t('BOOKMARKS_PLUGIN_DISABLED')));
+            return;
+        }
+
+        // 如果是反向連結模式，但沒有活動中的檔案
+        if (this.sourceMode === 'backlinks' && !this.app.workspace.getActiveFile()) {
+            new Notice(t(t(t('NO_BACKLINKS'))));
             return;
         }
         
@@ -491,6 +545,7 @@ class GridView extends ItemView {
         if (this.sourceMode === 'folder') {
             const currentFolder = this.app.vault.getAbstractFileByPath(this.sourcePath || '/');
             if (currentFolder instanceof TFolder) {
+                // 只取得當前資料夾中的 Markdown 檔案，不包含子資料夾
                 const subfolders = currentFolder.children
                     .filter(child => child instanceof TFolder)
                     .sort((a, b) => a.name.localeCompare(b.name));
@@ -692,60 +747,103 @@ async function showFolderSelectionModal(app, plugin, activeView = null) {
             contentEl.createEl('h2', { text: t('SELECT_FOLDERS') });
 
             // 建立書籤選項
-            const bookmarkOption = contentEl.createEl('div', {
-                cls: 'grid-view-folder-option',
-                text: `📑 ${t('BOOKMARKS_MODE')}`
-            });
-            bookmarkOption.style.cursor = 'pointer';
-            bookmarkOption.style.padding = '8px';
-            bookmarkOption.style.marginBottom = '8px';
-            bookmarkOption.style.border = '1px solid var(--background-modifier-border)';
-            bookmarkOption.style.borderRadius = '4px';
+            const bookmarksPlugin = this.app.internalPlugins.plugins.bookmarks;
+            if (bookmarksPlugin?.enabled) {
+                const bookmarkOption = contentEl.createEl('div', {
+                    cls: 'grid-view-folder-option',
+                    text: `📑 ${t('BOOKMARKS_MODE')}`
+                });
+                bookmarkOption.style.cursor = 'pointer';
+                bookmarkOption.style.padding = '8px';
+                bookmarkOption.style.marginBottom = '8px';
+                bookmarkOption.style.border = '1px solid var(--background-modifier-border)';
+                bookmarkOption.style.borderRadius = '4px';
 
-            bookmarkOption.addEventListener('click', () => {
-                if (this.activeView) {
-                    this.activeView.setSource('bookmarks');
-                } else {
-                    this.plugin.activateView('bookmarks');
-                }
-                this.close();
-            });
+                bookmarkOption.addEventListener('click', () => {
+                    if (this.activeView) {
+                        this.activeView.setSource('bookmarks');
+                    } else {
+                        this.plugin.activateView('bookmarks');
+                    }
+                    this.close();
+                });
 
-            bookmarkOption.addEventListener('mouseenter', () => {
-                bookmarkOption.style.backgroundColor = 'var(--background-modifier-hover)';
-            });
+                bookmarkOption.addEventListener('mouseenter', () => {
+                    bookmarkOption.style.backgroundColor = 'var(--background-modifier-hover)';
+                });
 
-            bookmarkOption.addEventListener('mouseleave', () => {
-                bookmarkOption.style.backgroundColor = '';
-            });
+                bookmarkOption.addEventListener('mouseleave', () => {
+                    bookmarkOption.style.backgroundColor = '';
+                });
+            }
 
             // 建立搜尋結果選項
-            const searchOption = contentEl.createEl('div', {
-                cls: 'grid-view-folder-option',
-                text: `🔍 ${t('SEARCH_RESULTS')}`
-            });
-            searchOption.style.cursor = 'pointer';
-            searchOption.style.padding = '8px';
-            searchOption.style.marginBottom = '8px';
-            searchOption.style.border = '1px solid var(--background-modifier-border)';
-            searchOption.style.borderRadius = '4px';
+            const searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
+            if (searchLeaf) {
+                const searchView = searchLeaf.view;
+                const searchInput = searchView.searchComponent ? searchView.searchComponent.inputEl : null;
+                const hasSearchInput = searchInput.value.trim().length > 0;
+                if (hasSearchInput) {
+                    const searchOption = contentEl.createEl('div', {
+                        cls: 'grid-view-folder-option',
+                        text: `🔍 ${t('SEARCH_RESULTS')}: ${searchInput.value}`
+                    });
+                    searchOption.style.cursor = 'pointer';
+                    searchOption.style.padding = '8px';
+                    searchOption.style.marginBottom = '8px';
+                    searchOption.style.border = '1px solid var(--background-modifier-border)';
+                    searchOption.style.borderRadius = '4px';
 
-            searchOption.addEventListener('click', () => {
-                if (this.activeView) {
-                    this.activeView.setSource('search');
-                } else {
-                    this.plugin.activateView('search');
+                    searchOption.addEventListener('click', () => {
+                        if (this.activeView) {
+                            this.activeView.setSource('search');
+                        } else {
+                            this.plugin.activateView('search');
+                        }
+                        this.close();
+                    });
+
+                    searchOption.addEventListener('mouseenter', () => {
+                        searchOption.style.backgroundColor = 'var(--background-modifier-hover)';
+                    });
+
+                    searchOption.addEventListener('mouseleave', () => {
+                        searchOption.style.backgroundColor = '';
+                    });
                 }
-                this.close();
-            });
+            }
 
-            searchOption.addEventListener('mouseenter', () => {
-                searchOption.style.backgroundColor = 'var(--background-modifier-hover)';
-            });
+            // 建立反向連結選項
+            const activeFile = this.app.workspace.getActiveFile();
+            if (activeFile) {
+                const activeFileName = activeFile ? `: ${activeFile.basename}` : '';
+                const backlinksOption = contentEl.createEl('div', {
+                    cls: 'grid-view-folder-option',
+                    text: `🔗 ${t('BACKLINKS_MODE')}${activeFileName}`
+                });
+                backlinksOption.style.cursor = 'pointer';
+                backlinksOption.style.padding = '8px';
+                backlinksOption.style.marginBottom = '8px';
+                backlinksOption.style.border = '1px solid var(--background-modifier-border)';
+                backlinksOption.style.borderRadius = '4px';
 
-            searchOption.addEventListener('mouseleave', () => {
-                searchOption.style.backgroundColor = '';
-            });
+                backlinksOption.addEventListener('click', () => {
+                    if (this.activeView) {
+                        this.activeView.setSource('backlinks');
+                    } else {
+                        this.plugin.activateView('backlinks');
+                    }
+                    this.close();
+                });
+
+                backlinksOption.addEventListener('mouseenter', () => {
+                    backlinksOption.style.backgroundColor = 'var(--background-modifier-hover)';
+                });
+
+                backlinksOption.addEventListener('mouseleave', () => {
+                    backlinksOption.style.backgroundColor = '';
+                });
+            }
 
             // 取得所有資料夾（排除被忽略的資料夾）
             const folders = app.vault.getAllLoadedFiles()
