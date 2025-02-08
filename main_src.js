@@ -313,9 +313,6 @@ class GridView extends ItemView {
             menu.showAtMouseEvent(evt);
         });
 
-        // 根據當前模式設定排序選單的顯示狀態
-        this.updateSortSelectVisibility();
-
         // 添加重新選擇位置按鈕
         this.addAction('folder', t('RESELECT_FOLDER'), () => {
             showFolderSelectionModal(this.app, this.plugin, this);
@@ -327,12 +324,15 @@ class GridView extends ItemView {
         });
 
         // 添加回上層目錄按鈕（僅在資料夾模式且不在根目錄時顯示）
-        this.addAction('arrow-up', t('GO_UP'), () => {
+        this.upSelect = this.addAction('arrow-up', t('GO_UP'), () => {
             if (this.sourceMode === 'folder' && this.sourcePath !== '/') {
                 const parentPath = this.sourcePath.split('/').slice(0, -1).join('/') || '/';
                 this.setSource('folder', parentPath);
             }
         });
+
+        // 根據當前模式設定排序選單的顯示狀態
+        this.updateSortSelectVisibility();
     }
 
     // 更新排序選單的顯示狀態
@@ -342,6 +342,14 @@ class GridView extends ItemView {
                 this.sortSelect.style.display = 'none';
             } else {
                 this.sortSelect.style.display = '';
+            }
+        }
+
+        if (this.upSelect) {
+            if (this.sourceMode === 'folder') {
+                this.upSelect.style.display = '';
+            } else {
+                this.upSelect.style.display = 'none';
             }
         }
     }
@@ -782,34 +790,35 @@ async function showFolderSelectionModal(app, plugin, activeView = null) {
             if (searchLeaf) {
                 const searchView = searchLeaf.view;
                 const searchInput = searchView.searchComponent ? searchView.searchComponent.inputEl : null;
-                const hasSearchInput = searchInput.value.trim().length > 0;
-                if (hasSearchInput) {
-                    const searchOption = contentEl.createEl('div', {
-                        cls: 'grid-view-folder-option',
-                        text: `🔍 ${t('SEARCH_RESULTS')}: ${searchInput.value}`
-                    });
-                    searchOption.style.cursor = 'pointer';
-                    searchOption.style.padding = '8px';
-                    searchOption.style.marginBottom = '8px';
-                    searchOption.style.border = '1px solid var(--background-modifier-border)';
-                    searchOption.style.borderRadius = '4px';
+                if(searchInput) {
+                    if (searchInput.value.trim().length > 0) {
+                        const searchOption = contentEl.createEl('div', {
+                            cls: 'grid-view-folder-option',
+                            text: `🔍 ${t('SEARCH_RESULTS')}: ${searchInput.value}`
+                        });
+                        searchOption.style.cursor = 'pointer';
+                        searchOption.style.padding = '8px';
+                        searchOption.style.marginBottom = '8px';
+                        searchOption.style.border = '1px solid var(--background-modifier-border)';
+                        searchOption.style.borderRadius = '4px';
 
-                    searchOption.addEventListener('click', () => {
-                        if (this.activeView) {
-                            this.activeView.setSource('search');
-                        } else {
-                            this.plugin.activateView('search');
-                        }
-                        this.close();
-                    });
+                        searchOption.addEventListener('click', () => {
+                            if (this.activeView) {
+                                this.activeView.setSource('search');
+                            } else {
+                                this.plugin.activateView('search');
+                            }
+                            this.close();
+                        });
 
-                    searchOption.addEventListener('mouseenter', () => {
-                        searchOption.style.backgroundColor = 'var(--background-modifier-hover)';
-                    });
+                        searchOption.addEventListener('mouseenter', () => {
+                            searchOption.style.backgroundColor = 'var(--background-modifier-hover)';
+                        });
 
-                    searchOption.addEventListener('mouseleave', () => {
-                        searchOption.style.backgroundColor = '';
-                    });
+                        searchOption.addEventListener('mouseleave', () => {
+                            searchOption.style.backgroundColor = '';
+                        });
+                    }
                 }
             }
 
