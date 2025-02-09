@@ -1,4 +1,4 @@
-const { Plugin, ItemView, TFolder, Setting, Menu } = require('obsidian');
+const { Plugin, ItemView, TFolder, Setting, Menu, setIcon } = require('obsidian');
 
 // 語系檔案
 const TRANSLATIONS = {
@@ -38,6 +38,10 @@ const TRANSLATIONS = {
         'DEFAULT_SORT_TYPE_DESC': '設定開啟網格視圖時的預設排序方式',
         'GRID_ITEM_WIDTH': '網格項目寬度',
         'GRID_ITEM_WIDTH_DESC': '設定網格項目的寬度',
+        'IMAGE_AREA_WIDTH': '圖片區域寬度',
+        'IMAGE_AREA_WIDTH_DESC': '設定圖片預覽區域的寬度',
+        'IMAGE_AREA_HEIGHT': '圖片區域高度',
+        'IMAGE_AREA_HEIGHT_DESC': '設定圖片預覽區域的高度',
 
         // 選擇資料夾對話框
         'SELECT_FOLDERS': '選擇資料夾',
@@ -80,6 +84,10 @@ const TRANSLATIONS = {
         'DEFAULT_SORT_TYPE_DESC': 'Set the default sorting method when opening Grid View',
         'GRID_ITEM_WIDTH': 'Grid Item Width',
         'GRID_ITEM_WIDTH_DESC': 'Set the width of grid items',
+        'IMAGE_AREA_WIDTH': 'Image Area Width',
+        'IMAGE_AREA_WIDTH_DESC': 'Set the width of the image preview area',
+        'IMAGE_AREA_HEIGHT': 'Image Area Height',
+        'IMAGE_AREA_HEIGHT_DESC': 'Set the height of the image preview area',
 
         // Folder Selection Dialog
         'SELECT_FOLDERS': 'Select Folder',
@@ -122,6 +130,10 @@ const TRANSLATIONS = {
         'DEFAULT_SORT_TYPE_DESC': '设置开启网格视图时的預设排序方式',
         'GRID_ITEM_WIDTH': '网格项目宽度',
         'GRID_ITEM_WIDTH_DESC': '设置网格项目的宽度',
+        'IMAGE_AREA_WIDTH': '圖片區域寬度',
+        'IMAGE_AREA_WIDTH_DESC': '设置圖片預覽區域的寬度',
+        'IMAGE_AREA_HEIGHT': '圖片區域高度',
+        'IMAGE_AREA_HEIGHT_DESC': '设置圖片預覽區域的高度',
 
         // 选择资料夹对话框
         'SELECT_FOLDERS': '选择文件夹',
@@ -164,6 +176,10 @@ const TRANSLATIONS = {
         'DEFAULT_SORT_TYPE_DESC': 'グリッドビューを開くときのデフォルトのソート方法を設定します',
         'GRID_ITEM_WIDTH': 'グリッドアイテムの幅',
         'GRID_ITEM_WIDTH_DESC': 'グリッドアイテムの幅を設定します',
+        'IMAGE_AREA_WIDTH': '画像エリア幅',
+        'IMAGE_AREA_WIDTH_DESC': '画像プレビュー領域の幅を設定します',
+        'IMAGE_AREA_HEIGHT': '画像エリア高さ',
+        'IMAGE_AREA_HEIGHT_DESC': '画像プレビュー領域の高さを設定します',
 
         // フォルダ選択ダイアログ
         'SELECT_FOLDERS': 'フォルダを選択',
@@ -256,7 +272,6 @@ class GridView extends ItemView {
         this.sourceMode = ''; // 預設為書籤模式
         this.sourcePath = null; // 用於資料夾模式的路徑
         this.sortType = this.plugin.settings.defaultSortType; // 使用設定中的預設排序模式
-        this.initHeaderButtons();
     }
 
     getViewType() {
@@ -278,79 +293,6 @@ class GridView extends ItemView {
             return t('SEARCH_RESULTS');
         } else if (this.sourceMode === 'backlinks') {
             return t('BACKLINKS_MODE');
-        }
-    }
-
-    // 初始化導航列
-    initHeaderButtons() {
-        // 添加排序選單
-        this.sortSelect = this.addAction('sort-desc', t('SORTING'), (evt) => {
-            const menu = new Menu();
-
-            const sortOptions = [
-                { value: 'name-asc', label: t('SORT_NAME_ASC'), icon: 'sort-ascending' },
-                { value: 'name-desc', label: t('SORT_NAME_DESC'), icon: 'sort-descending' },
-                { value: 'mtime-desc', label: t('SORT_MTIME_DESC'), icon: 'clock' },
-                { value: 'mtime-asc', label: t('SORT_MTIME_ASC'), icon: 'clock' },
-                { value: 'ctime-desc', label: t('SORT_CTIME_DESC'), icon: 'calendar' },
-                { value: 'ctime-asc', label: t('SORT_CTIME_ASC'), icon: 'calendar' },
-                { value: 'random', label: t('SORT_RANDOM'), icon: 'dice' },
-            ];
-
-            sortOptions.forEach(option => {
-                menu.addItem((item) => {
-                    item
-                        .setTitle(option.label)
-                        .setIcon(option.icon)
-                        .setChecked(this.sortType === option.value)
-                        .onClick(() => {
-                            this.sortType = option.value;
-                            this.rerender();
-                        });
-                });
-            });
-
-            menu.showAtMouseEvent(evt);
-        });
-
-        // 添加重新選擇位置按鈕
-        this.addAction('folder', t('RESELECT_FOLDER'), () => {
-            showFolderSelectionModal(this.app, this.plugin, this);
-        });
-
-        // 添加重新整理按鈕
-        this.addAction('refresh-cw', t('REFRESH'), () => {
-            this.rerender();
-        });
-
-        // 添加回上層目錄按鈕（僅在資料夾模式且不在根目錄時顯示）
-        this.upSelect = this.addAction('arrow-up', t('GO_UP'), () => {
-            if (this.sourceMode === 'folder' && this.sourcePath !== '/') {
-                const parentPath = this.sourcePath.split('/').slice(0, -1).join('/') || '/';
-                this.setSource('folder', parentPath);
-            }
-        });
-
-        // 根據當前模式設定排序選單的顯示狀態
-        this.updateSortSelectVisibility();
-    }
-
-    // 更新排序選單的顯示狀態
-    updateSortSelectVisibility() {
-        if (this.sortSelect) {
-            if (this.sourceMode === 'bookmarks') {
-                this.sortSelect.style.display = 'none';
-            } else {
-                this.sortSelect.style.display = '';
-            }
-        }
-
-        if (this.upSelect) {
-            if (this.sourceMode === 'folder') {
-                this.upSelect.style.display = '';
-            } else {
-                this.upSelect.style.display = 'none';
-            }
         }
     }
 
@@ -475,51 +417,99 @@ class GridView extends ItemView {
         }
     }
 
-    async rerender() {
+    setSource(mode, path = null) {
+        this.sourceMode = mode;
+        this.sourcePath = path;
+        this.render();
+    }
+
+    async render() {
         // 儲存當前捲動位置
         const scrollContainer = this.containerEl.querySelector('.view-content');
         const scrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
 
-        // 清空容器
-        const contentEl = this.containerEl.querySelector('.view-content');
-        if (contentEl) {
-            contentEl.empty();
+        // 清空整個容器
+        this.containerEl.empty();
+
+        // 創建頂部按鈕區域
+        const headerButtonsDiv = this.containerEl.createDiv('header-buttons');
+
+        // 添加回上層按鈕（僅在資料夾模式且不在根目錄時顯示）
+        if (this.sourceMode === 'folder' && this.sourcePath !== '/') {
+            const upButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('GO_UP') } });
+            upButton.addEventListener('click', () => {
+                const parentPath = this.sourcePath.split('/').slice(0, -1).join('/') || '/';
+                this.setSource('folder', parentPath);
+            });
+            setIcon(upButton, 'arrow-up');
         }
+        
+        // 添加重新整理按鈕
+        const refreshButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('REFRESH') }  });
+        refreshButton.addEventListener('click', () => {
+            this.render();
+        });
+        setIcon(refreshButton, 'refresh-ccw');
+
+        // 添加重新選擇資料夾按鈕
+        const reselectButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('RESELECT_FOLDER') }  });
+        reselectButton.addEventListener('click', () => {
+            showFolderSelectionModal(this.app, this.plugin, this);
+        });
+        setIcon(reselectButton, "folder");
+
+        // 添加排序按鈕
+        if (this.sourceMode !== 'bookmarks') {
+            const sortButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('SORTING') }  });
+            sortButton.addEventListener('click', (evt) => {
+                const menu = new Menu();
+                const sortOptions = [
+                    { value: 'name-asc', label: t('SORT_NAME_ASC'), icon: 'a-arrow-up' },
+                    { value: 'name-desc', label: t('SORT_NAME_DESC'), icon: 'a-arrow-down' },
+                    { value: 'mtime-desc', label: t('SORT_MTIME_DESC'), icon: 'clock' },
+                    { value: 'mtime-asc', label: t('SORT_MTIME_ASC'), icon: 'clock' },
+                    { value: 'ctime-desc', label: t('SORT_CTIME_DESC'), icon: 'calendar' },
+                    { value: 'ctime-asc', label: t('SORT_CTIME_ASC'), icon: 'calendar' },
+                    { value: 'random', label: t('SORT_RANDOM'), icon: 'dice' },
+                ];
+
+                sortOptions.forEach(option => {
+                    menu.addItem((item) => {
+                        item
+                            .setTitle(option.label)
+                            .setIcon(option.icon)
+                            .setChecked(this.sortType === option.value)
+                            .onClick(() => {
+                                this.sortType = option.value;
+                                this.render();
+                            });
+                    });
+                });
+                menu.showAtMouseEvent(evt);
+            });
+            setIcon(sortButton, 'arrow-down-up');
+        }
+
+        // 創建內容區域
+        const contentEl = this.containerEl.createDiv('view-content');
 
         // 重新渲染內容
-        await this.render();
+        await this.grid_render();
         this.leaf.updateHeader()
-
-        if (this.sourceMode === '') {
-            this.leaf.view.titleEl.textContent = t('GRID_VIEW_TITLE');
-        } else if (this.sourceMode === 'bookmarks') {
-            this.leaf.view.titleEl.textContent = t('BOOKMARKS_MODE');
-        } else if (this.sourceMode === 'folder') {
-            this.leaf.view.titleEl.textContent = this.sourcePath;
-        } else if (this.sourceMode === 'search') {
-            this.leaf.view.titleEl.textContent = t('SEARCH_RESULTS');
-        } else if (this.sourceMode === 'backlinks') {
-            this.leaf.view.titleEl.textContent = t('BACKLINKS_MODE');
-        }
 
         // 恢復捲動位置
         if (scrollContainer) {
-            scrollContainer.scrollTop = scrollTop;
+            contentEl.scrollTop = scrollTop;
         }
     }
 
-    setSource(mode, path = null) {
-        this.sourceMode = mode;
-        this.sourcePath = path;
-        this.updateSortSelectVisibility();
-        this.rerender();
-    }
-
-    async render() {
+    async grid_render() {
         const container = this.containerEl.children[1];
         container.empty();
         container.addClass('grid-container');
         container.style.setProperty('--grid-item-width', this.plugin.settings.gridItemWidth + 'px');
+        container.style.setProperty('--image-area-width', this.plugin.settings.imageAreaWidth + 'px');
+        container.style.setProperty('--image-area-height', this.plugin.settings.imageAreaHeight + 'px');
 
         // 如果是書籤模式且書籤插件未啟用，顯示提示
         if (this.sourceMode === 'bookmarks' && !this.app.internalPlugins.plugins.bookmarks?.enabled) {
@@ -532,22 +522,6 @@ class GridView extends ItemView {
             new Notice(t(t(t('NO_BACKLINKS'))));
             return;
         }
-        
-        // 如果是資料夾模式，添加上層資料夾連結（除了根目錄）
-        if (this.sourceMode === 'folder' && this.sourcePath !== '/') {
-            const parentPath = this.sourcePath.split('/').slice(0, -1).join('/') || '/';
-            const parentEl = container.createDiv('grid-item folder-item');
-            parentEl.addClass('parent-folder');
-            
-            const contentArea = parentEl.createDiv('content-area');
-            const titleEl = contentArea.createEl('h3');
-            titleEl.textContent = '📁 ..';
-            
-            // 點擊時切換到上層資料夾
-            parentEl.addEventListener('click', () => {
-                this.setSource('folder', parentPath);
-            });
-        }
 
         // 如果是資料夾模式，先顯示所有子資料夾
         if (this.sourceMode === 'folder') {
@@ -555,7 +529,13 @@ class GridView extends ItemView {
             if (currentFolder instanceof TFolder) {
                 // 只取得當前資料夾中的 Markdown 檔案，不包含子資料夾
                 const subfolders = currentFolder.children
-                    .filter(child => child instanceof TFolder)
+                    .filter(child => {
+                        if (!(child instanceof TFolder)) return false;
+                        // 檢查資料夾是否在忽略清單中
+                        return !this.plugin.settings.ignoredFolders.some(
+                            ignoredPath => child.path === ignoredPath || child.path.startsWith(ignoredPath + '/')
+                        );
+                    })
                     .sort((a, b) => a.name.localeCompare(b.name));
 
                 for (const folder of subfolders) {
@@ -664,7 +644,7 @@ class GridView extends ItemView {
             this.sourceMode = state.state.sourceMode || '';
             this.sourcePath = state.state.sourcePath || null;
             this.sortType = state.state.sortType || 'mtime-desc';
-            this.rerender();
+            this.render();
         }
     }
 }
@@ -673,7 +653,9 @@ class GridView extends ItemView {
 const DEFAULT_SETTINGS = {
     ignoredFolders: [],
     defaultSortType: 'mtime-desc', // 預設排序模式：修改時間倒序
-    gridItemWidth: 300 // 網格項目寬度，預設 300
+    gridItemWidth: 300, // 網格項目寬度，預設 300
+    imageAreaWidth: 100, // 圖片區域寬度，預設 100
+    imageAreaHeight: 100 // 圖片區域高度，預設 100
 };
 
 // 設定頁面類別
@@ -733,6 +715,32 @@ class GridExplorerSettingTab extends require('obsidian').PluginSettingTab {
                 .setDynamicTooltip()
                 .onChange(async (value) => {
                     this.plugin.settings.gridItemWidth = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        // 圖片區域寬度設定
+        new Setting(containerEl)
+            .setName(t('IMAGE_AREA_WIDTH'))
+            .setDesc(t('IMAGE_AREA_WIDTH_DESC'))
+            .addSlider(slider => slider
+                .setLimits(50, 200, 10)
+                .setValue(this.plugin.settings.imageAreaWidth)
+                .setDynamicTooltip()
+                .onChange(async (value) => {
+                    this.plugin.settings.imageAreaWidth = value;
+                    await this.plugin.saveSettings();
+                }));
+
+        // 圖片區域高度設定
+        new Setting(containerEl)
+            .setName(t('IMAGE_AREA_HEIGHT'))
+            .setDesc(t('IMAGE_AREA_HEIGHT_DESC'))
+            .addSlider(slider => slider
+                .setLimits(50, 200, 10)
+                .setValue(this.plugin.settings.imageAreaHeight)
+                .setDynamicTooltip()
+                .onChange(async (value) => {
+                    this.plugin.settings.imageAreaHeight = value;
                     await this.plugin.saveSettings();
                 }));
     }

@@ -6,22 +6,26 @@
 .grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(var(--grid-item-width, 300px), 1fr));
-    gap: 15px;
-    padding: 15px;
+    gap: 12px;
+    padding: 12px;
     align-items: start;
     background: var(--background-secondary) !important;
-    border-top: 1px solid var(--background-modifier-border);
+}
+
+.view-content {
+    flex: 1;
+    overflow-y: auto;
 }
 
 .grid-item {
     background-color: var(--background-primary);
     border: 1px solid var(--background-modifier-border);
     border-radius: 8px;
-    padding: 16px;
+    padding: 14px;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
-    gap: 16px;
+    gap: 14px;
     height: 100%;
 }
 
@@ -37,8 +41,8 @@
 }
 
 .image-area {
-    width: 100px;
-    height: 100px;
+    width: var(--image-area-width);
+    height: var(--image-area-height);
     flex-shrink: 0;
 }
 
@@ -51,7 +55,7 @@
 
 .grid-item h3 {
     margin: 0 0 8px 0;
-    font-size: 1.2em;
+    font-size: 1.1em;
     color: var(--text-normal);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -61,7 +65,7 @@
 .grid-item p {
     margin: 0;
     color: var(--text-muted);
-    font-size: 0.9em;
+    font-size: 0.85em;
     line-height: 1.4;
     overflow: hidden;
     display: -webkit-box;
@@ -101,4 +105,63 @@
     display: flex;
     align-items: center;
     min-height: 0px;
+}
+
+/* 頂部按鈕區域樣式 */
+.header-buttons {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--background-primary);
+    border-bottom: 1px solid var(--background-modifier-border);
+    flex-shrink: 0;
+    justify-content: center;
+}
+
+.header-buttons button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background-color: var(--interactive-normal);
+    border-radius: 4px;
+    color: var(--text-normal);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    min-width: 45px;
+}
+
+.header-buttons button:hover {
+    background-color: var(--interactive-hover);
+    transform: translateY(-1px);
+}
+
+.header-buttons button:active {
+    transform: translateY(0);
+}
+
+/* 特定按鈕樣式 */
+.header-buttons .sort-button,
+.header-buttons .reselect-button,
+.header-buttons .refresh-button,
+.header-buttons .up-button {
+    display: inline-flex;
+    align-items: center;
+}
+
+.header-buttons .sort-button::before {
+    content: "↕";
+}
+
+.header-buttons .reselect-button::before {
+    content: "📁";
+}
+
+.header-buttons .refresh-button::before {
+    content: "↻";
+}
+
+.header-buttons .up-button::before {
+    content: "↑";
 }
