@@ -1,4 +1,4 @@
-const { Plugin, ItemView, TFolder, Setting, Menu, setIcon } = require('obsidian');
+const { Plugin, ItemView, TFolder, TFile, Setting, Menu, setIcon } = require('obsidian');
 
 // 語系檔案
 const TRANSLATIONS = {
@@ -12,6 +12,10 @@ const TRANSLATIONS = {
         'RESELECT_FOLDER': '重新選擇位置',
         'GO_UP': '回上層資料夾',
         'NO_BACKLINKS': '沒有反向連結',
+        'SEARCH': '搜尋',
+        'SEARCH_PLACEHOLDER': '搜尋關鍵字',
+        'CANCEL': '取消',
+        'CLEAR_SEARCH': '清除搜尋',
 
         // 視圖標題
         'GRID_VIEW_TITLE': '網格視圖',
@@ -47,6 +51,7 @@ const TRANSLATIONS = {
         'SELECT_FOLDERS': '選擇資料夾',
         'OPEN_GRID_VIEW': '開啟網格視圖',
         'OPEN_IN_GRID_VIEW': '在網格視圖中開啟',
+        'DELETE_NOTE': '刪除筆記',
     },
     'en': {
         // Notifications
@@ -58,6 +63,10 @@ const TRANSLATIONS = {
         'RESELECT_FOLDER': 'Reselect Folder',
         'GO_UP': 'Go Up',
         'NO_BACKLINKS': 'No Backlinks',
+        'SEARCH': 'Search',
+        'SEARCH_PLACEHOLDER': 'Search keyword',
+        'CANCEL': 'Cancel',
+        'CLEAR_SEARCH': 'Clear Search',
 
         // View Titles
         'GRID_VIEW_TITLE': 'Grid View',
@@ -93,6 +102,7 @@ const TRANSLATIONS = {
         'SELECT_FOLDERS': 'Select Folder',
         'OPEN_GRID_VIEW': 'Open Grid View',
         'OPEN_IN_GRID_VIEW': 'Open in Grid View',
+        'DELETE_NOTE': 'Delete Note',
     },
     'zh': {
         // 通知信息
@@ -100,10 +110,14 @@ const TRANSLATIONS = {
 
         // 按钮和标签
         'SORTING': '排序方式',
-        'REFRESH': '重新整理',
+        'REFRESH': '刷新',
         'RESELECT_FOLDER': '重新选择位置',
         'GO_UP': '回上层文件夹',
         'NO_BACKLINKS': '没有反向链接',
+        'SEARCH': '搜索',
+        'SEARCH_PLACEHOLDER': '搜索关键字',
+        'CANCEL': '取消',
+        'CLEAR_SEARCH': '清除搜索',
 
         // 视图标题
         'GRID_VIEW_TITLE': '网格视图',
@@ -139,6 +153,7 @@ const TRANSLATIONS = {
         'SELECT_FOLDERS': '选择文件夹',
         'OPEN_GRID_VIEW': '开启网格视图',
         'OPEN_IN_GRID_VIEW': '在网格视图中开启',
+        'DELETE_NOTE': '删除笔记',
     },
     'ja': {
         // 通知メッジ
@@ -150,6 +165,10 @@ const TRANSLATIONS = {
         'RESELECT_FOLDER': 'フォルダを再選択',
         'GO_UP': '上へ',
         'NO_BACKLINKS': 'バックリンクはありません',
+        'SEARCH': '検索',
+        'SEARCH_PLACEHOLDER': '検索キーワード',
+        'CANCEL': 'キャンセル',
+        'CLEAR_SEARCH': '検索をクリア',
 
         // ビュータイトル
         'GRID_VIEW_TITLE': 'グリッドビュー',
@@ -185,6 +204,7 @@ const TRANSLATIONS = {
         'SELECT_FOLDERS': 'フォルダを選択',
         'OPEN_GRID_VIEW': 'グリッドビューを開く',
         'OPEN_IN_GRID_VIEW': 'グリッドビューで開く',
+        'DELETE_NOTE': 'ノートを削除',
     },
 };
 
@@ -272,6 +292,10 @@ class GridView extends ItemView {
         this.sourceMode = ''; // 預設為書籤模式
         this.sourcePath = null; // 用於資料夾模式的路徑
         this.sortType = this.plugin.settings.defaultSortType; // 使用設定中的預設排序模式
+        this.searchQuery = ''; // 搜尋關鍵字
+        
+        // 註冊檔案變更監聽器
+        this.registerFileWatcher();
     }
 
     getViewType() {
@@ -302,26 +326,8 @@ class GridView extends ItemView {
             const folder = this.app.vault.getAbstractFileByPath(this.sourcePath);
             if (folder instanceof TFolder) {
                 // 只取得當前資料夾中的 Markdown 檔案，不包含子資料夾
-                const files = folder.children
-                    .filter(file => file.extension === 'md')
-                    .sort((a, b) => {
-                        if (this.sortType === 'name-asc') {
-                            return a.basename.localeCompare(b.basename);
-                        } else if (this.sortType === 'name-desc') {
-                            return b.basename.localeCompare(a.basename);
-                        } else if (this.sortType === 'mtime-desc') {
-                            return b.stat.mtime - a.stat.mtime;
-                        } else if (this.sortType === 'mtime-asc') {
-                            return a.stat.mtime - b.stat.mtime;
-                        } else if (this.sortType === 'ctime-desc') {
-                            return b.stat.ctime - a.stat.ctime;
-                        } else if (this.sortType === 'ctime-asc') {
-                            return a.stat.ctime - b.stat.ctime;
-                        } else if (this.sortType === 'random') {
-                            return Math.random() - 0.5;
-                        }
-                    });
-                return files;
+                const files = folder.children.filter(file => file.extension === 'md');
+                return this.sortFiles(files);
             }
             return [];
         } else if (this.sourceMode === 'search') {
@@ -332,25 +338,9 @@ class GridView extends ItemView {
                 if (searchLeaf && searchLeaf.view && searchLeaf.view.dom) {
                     const resultDomLookup = searchLeaf.view.dom.resultDomLookup;
                     if (resultDomLookup) {
-                        return Array.from(resultDomLookup.keys())
-                            .filter(file => file.extension === 'md')
-                            .sort((a, b) => {
-                                if (this.sortType === 'name-asc') {
-                                    return a.basename.localeCompare(b.basename);
-                                } else if (this.sortType === 'name-desc') {
-                                    return b.basename.localeCompare(a.basename);
-                                } else if (this.sortType === 'mtime-desc') {
-                                    return b.stat.mtime - a.stat.mtime;
-                                } else if (this.sortType === 'mtime-asc') {
-                                    return a.stat.mtime - b.stat.mtime;
-                                } else if (this.sortType === 'ctime-desc') {
-                                    return b.stat.ctime - a.stat.ctime;
-                                } else if (this.sortType === 'ctime-asc') {
-                                    return a.stat.ctime - b.stat.ctime;
-                                } else if (this.sortType === 'random') {
-                                    return Math.random() - 0.5;
-                                }
-                            });
+                        const files = Array.from(resultDomLookup.keys())
+                            .filter(file => file.extension === 'md');
+                        return this.sortFiles(files);
                     }
                 }
             }
@@ -374,23 +364,7 @@ class GridView extends ItemView {
                 }
             }
 
-            return Array.from(backlinks).sort((a, b) => {
-                if (this.sortType === 'name-asc') {
-                    return a.basename.localeCompare(b.basename);
-                } else if (this.sortType === 'name-desc') {
-                    return b.basename.localeCompare(a.basename);
-                } else if (this.sortType === 'mtime-desc') {
-                    return b.stat.mtime - a.stat.mtime;
-                } else if (this.sortType === 'mtime-asc') {
-                    return a.stat.mtime - b.stat.mtime;
-                } else if (this.sortType === 'ctime-desc') {
-                    return b.stat.ctime - a.stat.ctime;
-                } else if (this.sortType === 'ctime-asc') {
-                    return a.stat.ctime - b.stat.ctime;
-                } else if (this.sortType === 'random') {
-                    return Math.random() - 0.5;
-                }
-            });
+            return this.sortFiles(Array.from(backlinks));
         } else {
             // 書籤模式
             const bookmarksPlugin = this.app.internalPlugins.plugins.bookmarks;
@@ -415,6 +389,25 @@ class GridView extends ItemView {
             bookmarks.forEach(processBookmarkItem);
             return Array.from(bookmarkedFiles);
         }
+    }
+
+    sortFiles(files) {
+        if (this.sortType === 'name-asc') {
+            return files.sort((a, b) => a.basename.localeCompare(b.basename));
+        } else if (this.sortType === 'name-desc') {
+            return files.sort((a, b) => b.basename.localeCompare(a.basename));
+        } else if (this.sortType === 'mtime-desc') {
+            return files.sort((a, b) => b.stat.mtime - a.stat.mtime);
+        } else if (this.sortType === 'mtime-asc') {
+            return files.sort((a, b) => a.stat.mtime - b.stat.mtime);
+        } else if (this.sortType === 'ctime-desc') {
+            return files.sort((a, b) => b.stat.ctime - a.stat.ctime);
+        } else if (this.sortType === 'ctime-asc') {
+            return files.sort((a, b) => a.stat.ctime - b.stat.ctime);
+        } else if (this.sortType === 'random') {
+            return files.sort(() => Math.random() - 0.5);
+        }
+        return files;
     }
 
     setSource(mode, path = null) {
@@ -490,6 +483,34 @@ class GridView extends ItemView {
             setIcon(sortButton, 'arrow-down-up');
         }
 
+        // 添加搜尋按鈕
+        const searchButtonContainer = headerButtonsDiv.createDiv('search-button-container');
+        
+        // 搜尋按鈕
+        const searchButton = searchButtonContainer.createEl('button', { 
+            attr: { 
+                'aria-label': this.searchQuery ? t('CLEAR_SEARCH') : t('SEARCH'),
+                'class': this.searchQuery ? 'active clear-search' : ''
+            } 
+        });
+        searchButton.addEventListener('click', () => {
+            if (this.searchQuery) {
+                // 如果已經有搜尋關鍵字，則清除搜尋
+                this.searchQuery = '';
+                this.render();
+            } else {
+                // 如果沒有搜尋關鍵字，則顯示搜尋對話框
+                this.showSearchModal();
+            }
+        });
+        setIcon(searchButton, this.searchQuery ? 'x' : 'search');
+
+        // 如果有搜尋關鍵字，顯示搜尋文字
+        if (this.searchQuery) {
+            const searchText = searchButtonContainer.createSpan('search-text');
+            searchText.textContent = this.searchQuery;
+        }
+
         // 創建內容區域
         const contentEl = this.containerEl.createDiv('view-content');
 
@@ -513,13 +534,13 @@ class GridView extends ItemView {
 
         // 如果是書籤模式且書籤插件未啟用，顯示提示
         if (this.sourceMode === 'bookmarks' && !this.app.internalPlugins.plugins.bookmarks?.enabled) {
-            new Notice(t(t('BOOKMARKS_PLUGIN_DISABLED')));
+            new Notice(t('BOOKMARKS_PLUGIN_DISABLED'));
             return;
         }
 
         // 如果是反向連結模式，但沒有活動中的檔案
         if (this.sourceMode === 'backlinks' && !this.app.workspace.getActiveFile()) {
-            new Notice(t(t(t('NO_BACKLINKS'))));
+            new Notice(t('NO_BACKLINKS'));
             return;
         }
 
@@ -538,7 +559,13 @@ class GridView extends ItemView {
                     })
                     .sort((a, b) => a.name.localeCompare(b.name));
 
-                for (const folder of subfolders) {
+                // 如果有搜尋關鍵字，過濾資料夾
+                const filteredSubfolders = this.searchQuery
+                    ? subfolders.filter(folder => 
+                        folder.name.toLowerCase().includes(this.searchQuery.toLowerCase()))
+                    : subfolders;
+
+                for (const folder of filteredSubfolders) {
                     const folderEl = container.createDiv('grid-item folder-item');
                     
                     const contentArea = folderEl.createDiv('content-area');
@@ -553,8 +580,28 @@ class GridView extends ItemView {
             }
         }
 
-        // 獲取檔案列表
-        const files = await this.getFiles();
+        let files = [];
+        if (this.searchQuery) {
+            // 取得 vault 中所有的 Markdown 檔案
+            const allMarkdownFiles = this.app.vault.getFiles().filter(file => file.extension === 'md');
+            // 根據搜尋關鍵字進行過濾（不分大小寫）
+            const lowerCaseSearchQuery = this.searchQuery.toLowerCase();
+            // 使用 Promise.all 來非同步地讀取所有檔案內容
+            await Promise.all(
+                allMarkdownFiles.map(async file => {
+                    const fileName = file.name.toLowerCase();
+                    const content = (await this.app.vault.cachedRead(file)).toLowerCase();
+                    if (fileName.includes(lowerCaseSearchQuery) || content.includes(lowerCaseSearchQuery)) {
+                        files.push(file);
+                    }
+                })
+            );
+            // 根據設定的排序方式排序檔案
+            files = this.sortFiles(files);
+        } else {
+            // 獲取檔案列表並根據搜尋關鍵字過濾
+            files = await this.getFiles();
+        }
 
         // 創建 Intersection Observer
         const observer = new IntersectionObserver((entries, observer) => {
@@ -568,13 +615,12 @@ class GridView extends ItemView {
                     if (!contentArea.hasAttribute('data-loaded')) {
                         const content = await this.app.vault.cachedRead(file);
                         // 移除 frontmatter 區域，並移除內部連結和圖片連結
-                        const contentWithoutFrontmatter = content.replace(/^---\n[\s\S]*?\n---\n|`{3}[\s\S]*?`{3}|<!--[\s\S]*?-->|(!?\[([^\]]*)\]\(([^)]+)\))|!?\[\[([^\]]+)\]\]/g, '')
-                            .replace('年齡：`=date(today) - date(this.birthday)`','');
+                        const contentWithoutFrontmatter = content.replace(/^---\n[\s\S]*?\n---\n|`{3}[\s\S]*?`{3}|<!--[\s\S]*?-->|(!?\[([^\]]*)\]\(([^)]+)\))|!?\[\[([^\]]+)\]\]/g, '');
                         // 只取前100個字符作為預覽
                         const preview = contentWithoutFrontmatter.slice(0, 100) + (contentWithoutFrontmatter.length > 100 ? '...' : '');
                         
                         // 創建預覽內容
-                        const contentEl = contentArea.createEl('p', { text: preview });
+                        const contentEl = contentArea.createEl('p', { text: preview.trim() });
                         contentArea.setAttribute('data-loaded', 'true');
                     }
                     
@@ -623,7 +669,89 @@ class GridView extends ItemView {
             noteEl.addEventListener('click', () => {
                 this.app.workspace.getLeaf().openFile(file);
             });
+
+            // 添加右鍵選單
+            noteEl.addEventListener('contextmenu', (event) => {
+                event.preventDefault();
+                const menu = new Menu();
+                menu.addItem((item) => {
+                    item
+                        .setTitle(t('DELETE_NOTE'))
+                        .setIcon('trash')
+                        .onClick(async () => {
+                            await this.app.vault.trash(file, false);
+                        });
+                });
+                menu.showAtMouseEvent(event);
+            });
         }
+    }
+
+    // 顯示搜尋 modal
+    showSearchModal() {
+        const { Modal } = require('obsidian');
+
+        class SearchModal extends Modal {
+            constructor(app, gridView) {
+                super(app);
+                this.gridView = gridView;
+            }
+
+            onOpen() {
+                const { contentEl } = this;
+                contentEl.empty();
+                contentEl.createEl('h2', { text: t('SEARCH') });
+
+                // 創建搜尋輸入框
+                const searchContainer = contentEl.createDiv('search-container');
+                const searchInput = searchContainer.createEl('input', {
+                    type: 'text',
+                    value: '',
+                    placeholder: t('SEARCH_PLACEHOLDER')
+                });
+
+                // 創建按鈕容器
+                const buttonContainer = contentEl.createDiv('button-container');
+
+                // 創建搜尋按鈕
+                const searchButton = buttonContainer.createEl('button', {
+                    text: t('SEARCH')
+                });
+
+                // 創建取消按鈕
+                const cancelButton = buttonContainer.createEl('button', {
+                    text: t('CANCEL')
+                });
+
+                // 綁定搜尋事件
+                const performSearch = () => {
+                    this.gridView.searchQuery = searchInput.value;
+                    this.gridView.render();
+                    this.close();
+                };
+
+                searchButton.addEventListener('click', performSearch);
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        performSearch();
+                    }
+                });
+
+                cancelButton.addEventListener('click', () => {
+                    this.close();
+                });
+
+                // 自動聚焦到搜尋輸入框
+                searchInput.focus();
+            }
+
+            onClose() {
+                const { contentEl } = this;
+                contentEl.empty();
+            }
+        }
+
+        new SearchModal(this.app, this).open();
     }
 
     // 保存視圖狀態
@@ -633,7 +761,8 @@ class GridView extends ItemView {
             state: {
                 sourceMode: this.sourceMode,
                 sourcePath: this.sourcePath,
-                sortType: this.sortType
+                sortType: this.sortType,
+                searchQuery: this.searchQuery
             }
         };
     }
@@ -644,8 +773,51 @@ class GridView extends ItemView {
             this.sourceMode = state.state.sourceMode || '';
             this.sourcePath = state.state.sourcePath || null;
             this.sortType = state.state.sortType || 'mtime-desc';
+            this.searchQuery = state.state.searchQuery || '';
             this.render();
         }
+    }
+
+    // 註冊檔案監聽器
+    registerFileWatcher() {
+        ['create', 'modify', 'delete'].forEach(eventName => {
+            this.registerEvent(
+                this.app.vault.on(eventName, (file) => {
+                    if (this.sourceMode === 'folder' && this.sourcePath && this.searchQuery === '') {
+                        const fileDirPath = file.path.split('/').slice(0, -1).join('/') || '/';
+                        if (fileDirPath === this.sourcePath) {
+                            this.render();
+                        } 
+                    } else {
+                        this.render();
+                    }
+                })
+            );
+        });
+
+        //更名及檔案移動
+        this.registerEvent(
+            this.app.vault.on('rename', (file, oldPath) => {
+                if (this.sourceMode === 'folder' && this.sourcePath && this.searchQuery === '') {
+                    const fileDirPath = file.path.split('/').slice(0, -1).join('/') || '/';
+                    const oldDirPath = oldPath.split('/').slice(0, -1).join('/') || '/';
+                    if (fileDirPath === this.sourcePath || oldDirPath === this.sourcePath) {
+                        this.render();
+                    } 
+                } else {
+                    this.render();
+                }
+            })
+        );
+
+        // 處理書籤變更
+        this.registerEvent(
+            this.app.internalPlugins.plugins.bookmarks.instance.on('changed', () => {
+                if (this.sourceMode === 'bookmarks') {
+                    this.render();
+                }
+            })
+        );
     }
 }
 
@@ -710,7 +882,7 @@ class GridExplorerSettingTab extends require('obsidian').PluginSettingTab {
             .setName(t('GRID_ITEM_WIDTH'))
             .setDesc(t('GRID_ITEM_WIDTH_DESC'))
             .addSlider(slider => slider
-                .setLimits(200, 500, 50)
+                .setLimits(200, 600, 50)
                 .setValue(this.plugin.settings.gridItemWidth)
                 .setDynamicTooltip()
                 .onChange(async (value) => {
@@ -723,7 +895,7 @@ class GridExplorerSettingTab extends require('obsidian').PluginSettingTab {
             .setName(t('IMAGE_AREA_WIDTH'))
             .setDesc(t('IMAGE_AREA_WIDTH_DESC'))
             .addSlider(slider => slider
-                .setLimits(50, 200, 10)
+                .setLimits(50, 300, 10)
                 .setValue(this.plugin.settings.imageAreaWidth)
                 .setDynamicTooltip()
                 .onChange(async (value) => {
@@ -736,7 +908,7 @@ class GridExplorerSettingTab extends require('obsidian').PluginSettingTab {
             .setName(t('IMAGE_AREA_HEIGHT'))
             .setDesc(t('IMAGE_AREA_HEIGHT_DESC'))
             .addSlider(slider => slider
-                .setLimits(50, 200, 10)
+                .setLimits(50, 300, 10)
                 .setValue(this.plugin.settings.imageAreaHeight)
                 .setDynamicTooltip()
                 .onChange(async (value) => {
