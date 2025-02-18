@@ -4,207 +4,223 @@ const { Plugin, ItemView, TFolder, TFile, Setting, Menu, setIcon } = require('ob
 const TRANSLATIONS = {
     'zh-TW': {
         // 通知訊息
-        'BOOKMARKS_PLUGIN_DISABLED': '請先啟用書籤插件',
+        'bookmarks_plugin_disabled': '請先啟用書籤插件',
 
         // 按鈕和標籤
-        'SORTING': '排序方式',
-        'REFRESH': '重新整理',
-        'RESELECT_FOLDER': '重新選擇位置',
-        'GO_UP': '回上層資料夾',
-        'NO_BACKLINKS': '沒有反向連結',
-        'SEARCH': '搜尋',
-        'SEARCH_PLACEHOLDER': '搜尋關鍵字',
-        'CANCEL': '取消',
-        'CLEAR_SEARCH': '清除搜尋',
+        'sorting': '排序方式',
+        'refresh': '重新整理',
+        'reselect_folder': '重新選擇位置',
+        'go_up': '回上層資料夾',
+        'no_backlinks': '沒有反向連結',
+        'search': '搜尋',
+        'search_placeholder': '搜尋關鍵字',
+        'cancel': '取消',
+        'new_note': '新增筆記',
+        'untitled': '未命名',
+        'notes': '個筆記',
 
         // 視圖標題
-        'GRID_VIEW_TITLE': '網格視圖',
-        'BOOKMARKS_MODE': '書籤',
-        'FOLDER_MODE': '資料夾',
-        'SEARCH_RESULTS': '搜尋結果',
-        'BACKLINKS_MODE': '反向連結',
+        'grid_view_title': '網格視圖',
+        'bookmarks_mode': '書籤',
+        'folder_mode': '資料夾',
+        'search_results': '搜尋結果',
+        'backlinks_mode': '反向連結',
+        'all_notes_mode': '所有筆記',
 
         // 排序選項
-        'SORT_NAME_ASC': '名稱 (A → Z)',
-        'SORT_NAME_DESC': '名稱 (Z → A)',
-        'SORT_MTIME_DESC': '修改時間 (新 → 舊)',
-        'SORT_MTIME_ASC': '修改時間 (舊 → 新)',
-        'SORT_CTIME_DESC': '建立時間 (新 → 舊)',
-        'SORT_CTIME_ASC': '建立時間 (舊 → 新)',
-        'SORT_RANDOM': '隨機排序',
+        'sort_name_asc': '名稱 (A → Z)',
+        'sort_name_desc': '名稱 (Z → A)',
+        'sort_mtime_desc': '修改時間 (新 → 舊)',
+        'sort_mtime_asc': '修改時間 (舊 → 新)',
+        'sort_ctime_desc': '建立時間 (新 → 舊)',
+        'sort_ctime_asc': '建立時間 (舊 → 新)',
+        'sort_random': '隨機排序',
 
         // 設定
-        'GRID_VIEW_SETTINGS': '網格視圖設定',
-        'IGNORED_FOLDERS': '忽略的資料夾',
-        'IGNORED_FOLDERS_DESC': '在這裡設定不要出現在資料夾選擇器中的資料夾（每行一個資料夾路徑）',
-        'IGNORED_FOLDERS_PLACEHOLDER': '範例：\n.obsidian\nTemplates',
-        'DEFAULT_SORT_TYPE': '預設排序模式',
-        'DEFAULT_SORT_TYPE_DESC': '設定開啟網格視圖時的預設排序方式',
-        'GRID_ITEM_WIDTH': '網格項目寬度',
-        'GRID_ITEM_WIDTH_DESC': '設定網格項目的寬度',
-        'IMAGE_AREA_WIDTH': '圖片區域寬度',
-        'IMAGE_AREA_WIDTH_DESC': '設定圖片預覽區域的寬度',
-        'IMAGE_AREA_HEIGHT': '圖片區域高度',
-        'IMAGE_AREA_HEIGHT_DESC': '設定圖片預覽區域的高度',
+        'grid_view_settings': '網格視圖設定',
+        'ignored_folders': '忽略的資料夾',
+        'ignored_folders_desc': '在這裡設定要忽略的資料夾（每行一個資料夾路徑）',
+        'ignored_folders_placeholder': '範例：\n.obsidian\nTemplates',
+        'default_sort_type': '預設排序模式',
+        'default_sort_type_desc': '設定開啟網格視圖時的預設排序方式',
+        'grid_item_width': '網格項目寬度',
+        'grid_item_width_desc': '設定網格項目的寬度',
+        'image_area_width': '圖片區域寬度',
+        'image_area_width_desc': '設定圖片預覽區域的寬度',
+        'image_area_height': '圖片區域高度',
+        'image_area_height_desc': '設定圖片預覽區域的高度',
 
         // 選擇資料夾對話框
-        'SELECT_FOLDERS': '選擇資料夾',
-        'OPEN_GRID_VIEW': '開啟網格視圖',
-        'OPEN_IN_GRID_VIEW': '在網格視圖中開啟',
-        'DELETE_NOTE': '刪除筆記',
+        'select_folders': '選擇資料夾',
+        'open_grid_view': '開啟網格視圖',
+        'open_in_grid_view': '在網格視圖中開啟',
+        'delete_note': '刪除筆記',
+        'open_in_new_tab': '在新分頁開啟',
     },
     'en': {
         // Notifications
-        'BOOKMARKS_PLUGIN_DISABLED': 'Please enable the Bookmarks plugin first',
+        'bookmarks_plugin_disabled': 'Please enable the Bookmarks plugin first',
 
         // Buttons and Labels
-        'SORTING': 'Sort by',
-        'REFRESH': 'Refresh',
-        'RESELECT_FOLDER': 'Reselect Folder',
-        'GO_UP': 'Go Up',
-        'NO_BACKLINKS': 'No Backlinks',
-        'SEARCH': 'Search',
-        'SEARCH_PLACEHOLDER': 'Search keyword',
-        'CANCEL': 'Cancel',
-        'CLEAR_SEARCH': 'Clear Search',
+        'sorting': 'Sort by',
+        'refresh': 'Refresh',
+        'reselect_folder': 'Reselect Folder',
+        'go_up': 'Go Up',
+        'no_backlinks': 'No Backlinks',
+        'search': 'Search',
+        'search_placeholder': 'Search keyword',
+        'cancel': 'Cancel',
+        'new_note': 'New Note',
+        'untitled': 'Untitled',
+        'notes': 'Notes',
 
         // View Titles
-        'GRID_VIEW_TITLE': 'Grid View',
-        'BOOKMARKS_MODE': 'Bookmarks',
-        'FOLDER_MODE': 'Folder',
-        'SEARCH_RESULTS': 'Search Results',
-        'BACKLINKS_MODE': 'Backlinks',
+        'grid_view_title': 'Grid View',
+        'bookmarks_mode': 'Bookmarks',
+        'folder_mode': 'Folder',
+        'search_results': 'Search Results',
+        'backlinks_mode': 'Backlinks',
+        'all_notes_mode': 'All Notes',
 
         // Sort Options
-        'SORT_NAME_ASC': 'Name (A → Z)',
-        'SORT_NAME_DESC': 'Name (Z → A)',
-        'SORT_MTIME_DESC': 'Modified Time (New → Old)',
-        'SORT_MTIME_ASC': 'Modified Time (Old → New)',
-        'SORT_CTIME_DESC': 'Created Time (New → Old)',
-        'SORT_CTIME_ASC': 'Created Time (Old → New)',
-        'SORT_RANDOM': 'Random',
+        'sort_name_asc': 'Name (A → Z)',
+        'sort_name_desc': 'Name (Z → A)',
+        'sort_mtime_desc': 'Modified Time (New → Old)',
+        'sort_mtime_asc': 'Modified Time (Old → New)',
+        'sort_ctime_desc': 'Created Time (New → Old)',
+        'sort_ctime_asc': 'Created Time (Old → New)',
+        'sort_random': 'Random',
 
         // Settings
-        'GRID_VIEW_SETTINGS': 'Grid View Settings',
-        'IGNORED_FOLDERS': 'Ignored Folders',
-        'IGNORED_FOLDERS_DESC': 'Set folders to be excluded from the folder selector (one path per line)',
-        'IGNORED_FOLDERS_PLACEHOLDER': 'Example:\n.obsidian\nTemplates',
-        'DEFAULT_SORT_TYPE': 'Default Sort Type',
-        'DEFAULT_SORT_TYPE_DESC': 'Set the default sorting method when opening Grid View',
-        'GRID_ITEM_WIDTH': 'Grid Item Width',
-        'GRID_ITEM_WIDTH_DESC': 'Set the width of grid items',
-        'IMAGE_AREA_WIDTH': 'Image Area Width',
-        'IMAGE_AREA_WIDTH_DESC': 'Set the width of the image preview area',
-        'IMAGE_AREA_HEIGHT': 'Image Area Height',
-        'IMAGE_AREA_HEIGHT_DESC': 'Set the height of the image preview area',
+        'grid_view_settings': 'Grid View Settings',
+        'ignored_folders': 'Ignored Folders',
+        'ignored_folders_desc': 'Set folders to be ignored (one path per line)',
+        'ignored_folders_placeholder': 'Example:\n.obsidian\nTemplates',
+        'default_sort_type': 'Default Sort Type',
+        'default_sort_type_desc': 'Set the default sorting method when opening Grid View',
+        'grid_item_width': 'Grid Item Width',
+        'grid_item_width_desc': 'Set the width of grid items',
+        'image_area_width': 'Image Area Width',
+        'image_area_width_desc': 'Set the width of the image preview area',
+        'image_area_height': 'Image Area Height',
+        'image_area_height_desc': 'Set the height of the image preview area',
 
         // Folder Selection Dialog
-        'SELECT_FOLDERS': 'Select Folder',
-        'OPEN_GRID_VIEW': 'Open Grid View',
-        'OPEN_IN_GRID_VIEW': 'Open in Grid View',
-        'DELETE_NOTE': 'Delete Note',
+        'select_folders': 'Select Folder',
+        'open_grid_view': 'Open Grid View',
+        'open_in_grid_view': 'Open in Grid View',
+        'delete_note': 'Delete Note',
+        'open_in_new_tab': 'Open in New Tab',
     },
     'zh': {
         // 通知信息
-        'BOOKMARKS_PLUGIN_DISABLED': '请先启用书签插件',
+        'bookmarks_plugin_disabled': '请先启用书签插件',
 
         // 按钮和标签
-        'SORTING': '排序方式',
-        'REFRESH': '刷新',
-        'RESELECT_FOLDER': '重新选择位置',
-        'GO_UP': '回上层文件夹',
-        'NO_BACKLINKS': '没有反向链接',
-        'SEARCH': '搜索',
-        'SEARCH_PLACEHOLDER': '搜索关键字',
-        'CANCEL': '取消',
-        'CLEAR_SEARCH': '清除搜索',
+        'sorting': '排序方式',
+        'refresh': '刷新',
+        'reselect_folder': '重新选择位置',
+        'go_up': '回上层文件夹',
+        'no_backlinks': '没有反向链接',
+        'search': '搜索',
+        'search_placeholder': '搜索关键字',
+        'cancel': '取消',
+        'new_note': '新增笔记',
+        'untitled': '未命名',
+        'notes': '個笔记',
 
         // 视图标题
-        'GRID_VIEW_TITLE': '网格视图',
-        'BOOKMARKS_MODE': '书签',
-        'FOLDER_MODE': '文件夹',
-        'SEARCH_RESULTS': '搜索结果',
-        'BACKLINKS_MODE': '反向链接',
+        'grid_view_title': '网格视图',
+        'bookmarks_mode': '书签',
+        'folder_mode': '文件夹',
+        'search_results': '搜索结果',
+        'backlinks_mode': '反向链接',
+        'all_notes_mode': '所有笔记',
 
         // 排序选项
-        'SORT_NAME_ASC': '名称 (A → Z)',
-        'SORT_NAME_DESC': '名称 (Z → A)',
-        'SORT_MTIME_DESC': '修改时间 (新 → 旧)',
-        'SORT_MTIME_ASC': '修改时间 (旧 → 新)',
-        'SORT_CTIME_DESC': '建立时间 (新 → 旧)',
-        'SORT_CTIME_ASC': '建立时间 (旧 → 新)',
-        'SORT_RANDOM': '随机排序',
+        'sort_name_asc': '名称 (A → Z)',
+        'sort_name_desc': '名称 (Z → A)',
+        'sort_mtime_desc': '修改时间 (新 → 旧)',
+        'sort_mtime_asc': '修改时间 (旧 → 新)',
+        'sort_ctime_desc': '建立时间 (新 → 旧)',
+        'sort_ctime_asc': '建立时间 (旧 → 新)',
+        'sort_random': '随机排序',
 
         // 设置
-        'GRID_VIEW_SETTINGS': '网格视图设置',
-        'IGNORED_FOLDERS': '忽略的文件夹',
-        'IGNORED_FOLDERS_DESC': '在這裡设置不要出现在文件夹选择器中的文件夹（每行一个文件夹路径）',
-        'IGNORED_FOLDERS_PLACEHOLDER': '範例：\n.obsidian\nTemplates',
-        'DEFAULT_SORT_TYPE': '預设排序模式',
-        'DEFAULT_SORT_TYPE_DESC': '设置开启网格视图时的預设排序方式',
-        'GRID_ITEM_WIDTH': '网格项目宽度',
-        'GRID_ITEM_WIDTH_DESC': '设置网格项目的宽度',
-        'IMAGE_AREA_WIDTH': '圖片區域寬度',
-        'IMAGE_AREA_WIDTH_DESC': '设置圖片預覽區域的寬度',
-        'IMAGE_AREA_HEIGHT': '圖片區域高度',
-        'IMAGE_AREA_HEIGHT_DESC': '设置圖片預覽區域的高度',
+        'grid_view_settings': '网格视图设置',
+        'ignored_folders': '忽略的文件夹',
+        'ignored_folders_desc': '在这里设置要忽略的文件夹（每行一个文件夹路径）',
+        'ignored_folders_placeholder': '範例：\n.obsidian\nTemplates',
+        'default_sort_type': '預设排序模式',
+        'default_sort_type_desc': '设置开启网格视图时的預设排序方式',
+        'grid_item_width': '网格项目宽度',
+        'grid_item_width_desc': '设置网格项目的宽度',
+        'image_area_width': '圖片區域寬度',
+        'image_area_width_desc': '设置圖片預覽區域的寬度',
+        'image_area_height': '圖片區域高度',
+        'image_area_height_desc': '设置圖片預覽區域的高度',
 
         // 选择资料夹对话框
-        'SELECT_FOLDERS': '选择文件夹',
-        'OPEN_GRID_VIEW': '开启网格视图',
-        'OPEN_IN_GRID_VIEW': '在网格视图中开启',
-        'DELETE_NOTE': '删除笔记',
+        'select_folders': '选择文件夹',
+        'open_grid_view': '开启网格视图',
+        'open_in_grid_view': '在网格视图中开启',
+        'delete_note': '删除笔记',
+        'open_in_new_tab': '在新分頁開啟',
     },
     'ja': {
         // 通知メッジ
-        'BOOKMARKS_PLUGIN_DISABLED': 'ブックマークプラグインを有効にしてください',
+        'bookmarks_plugin_disabled': 'ブックマークプラグインを有効にしてください',
 
         // ボタンとラベル
-        'SORTING': 'ソート',
-        'REFRESH': 'リフレッシュ',
-        'RESELECT_FOLDER': 'フォルダを再選択',
-        'GO_UP': '上へ',
-        'NO_BACKLINKS': 'バックリンクはありません',
-        'SEARCH': '検索',
-        'SEARCH_PLACEHOLDER': '検索キーワード',
-        'CANCEL': 'キャンセル',
-        'CLEAR_SEARCH': '検索をクリア',
+        'sorting': 'ソート',
+        'refresh': 'リフレッシュ',
+        'reselect_folder': 'フォルダを再選択',
+        'go_up': '上へ',
+        'no_backlinks': 'バックリンクはありません',
+        'search': '検索',
+        'search_placeholder': '検索キーワード',
+        'cancel': 'キャンセル',
+        'new_note': '新規ノート',
+        'untitled': '無題のファイル',
+        'notes': 'ファイル',
 
         // ビュータイトル
-        'GRID_VIEW_TITLE': 'グリッドビュー',
-        'BOOKMARKS_MODE': 'ブックマーク',
-        'FOLDER_MODE': 'フォルダ',
-        'SEARCH_RESULTS': '検索結果',
-        'BACKLINKS_MODE': 'バックリンク',
+        'grid_view_title': 'グリッドビュー',
+        'bookmarks_mode': 'ブックマーク',
+        'folder_mode': 'フォルダ',
+        'search_results': '検索結果',
+        'backlinks_mode': 'バックリンク',
+        'all_notes_mode': 'すべてのノート',
 
         // ソートオプション
-        'SORT_NAME_ASC': '名前 (A → Z)',
-        'SORT_NAME_DESC': '名前 (Z → A)',
-        'SORT_MTIME_DESC': '変更時間 (新 → 旧)',
-        'SORT_MTIME_ASC': '変更時間 (旧 → 新)',
-        'SORT_CTIME_DESC': '作成時間 (新 → 旧)',
-        'SORT_CTIME_ASC': '作成時間 (旧 → 新)',
-        'SORT_RANDOM': 'ランダム',
+        'sort_name_asc': '名前 (A → Z)',
+        'sort_name_desc': '名前 (Z → A)',
+        'sort_mtime_desc': '変更時間 (新 → 旧)',
+        'sort_mtime_asc': '変更時間 (旧 → 新)',
+        'sort_ctime_desc': '作成時間 (新 → 旧)',
+        'sort_ctime_asc': '作成時間 (旧 → 新)',
+        'sort_random': 'ランダム',
 
         // 設定
-        'GRID_VIEW_SETTINGS': 'グリッドビューセッティング',
-        'IGNORED_FOLDERS': '無視するフォルダ',
-        'IGNORED_FOLDERS_DESC': 'フォルダ選択器から除外するフォルダを設定します (1 行に 1 つのフォルダパス)',
-        'IGNORED_FOLDERS_PLACEHOLDER': '例：\n.obsidian\nTemplates',
-        'DEFAULT_SORT_TYPE': 'デフォルトのソートタイプ',
-        'DEFAULT_SORT_TYPE_DESC': 'グリッドビューを開くときのデフォルトのソート方法を設定します',
-        'GRID_ITEM_WIDTH': 'グリッドアイテムの幅',
-        'GRID_ITEM_WIDTH_DESC': 'グリッドアイテムの幅を設定します',
-        'IMAGE_AREA_WIDTH': '画像エリア幅',
-        'IMAGE_AREA_WIDTH_DESC': '画像プレビュー領域の幅を設定します',
-        'IMAGE_AREA_HEIGHT': '画像エリア高さ',
-        'IMAGE_AREA_HEIGHT_DESC': '画像プレビュー領域の高さを設定します',
+        'grid_view_settings': 'グリッドビューセッティング',
+        'ignored_folders': '無視するフォルダ',
+        'ignored_folders_desc': '無視するフォルダを設定します（1行に1つのフォルダパス）',
+        'ignored_folders_placeholder': '例：\n.obsidian\nTemplates',
+        'default_sort_type': 'デフォルトのソートタイプ',
+        'default_sort_type_desc': 'グリッドビューを開くときのデフォルトのソート方法を設定します',
+        'grid_item_width': 'グリッドアイテムの幅',
+        'grid_item_width_desc': 'グリッドアイテムの幅を設定します',
+        'image_area_width': '画像エリア幅',
+        'image_area_width_desc': '画像プレビュー領域の幅を設定します',
+        'image_area_height': '画像エリア高さ',
+        'image_area_height_desc': '画像プレビュー領域の高さを設定します',
 
         // フォルダ選択ダイアログ
-        'SELECT_FOLDERS': 'フォルダを選択',
-        'OPEN_GRID_VIEW': 'グリッドビューを開く',
-        'OPEN_IN_GRID_VIEW': 'グリッドビューで開く',
-        'DELETE_NOTE': 'ノートを削除',
+        'select_folders': 'フォルダを選択',
+        'open_grid_view': 'グリッドビューを開く',
+        'open_in_grid_view': 'グリッドビューで開く',
+        'delete_note': 'ノートを削除',
+        'open_in_new_tab': '新しいタブで開く',
     },
 };
 
@@ -230,7 +246,7 @@ function processMediaLink(app, linkText) {
     // 處理標準 Markdown 連結 ![alt](path)
     const markdownMatch = linkText.match(/!\[(.*?)\]\((.*?)\)/);
     if (markdownMatch) {
-        const url = markdownMatch[2];
+        const url = markdownMatch[2].split(" ")[0];
         if (url.startsWith('http')) {
             return url;
         } else {
@@ -251,32 +267,13 @@ function processMediaLink(app, linkText) {
 // 尋找筆記中的第一張圖片
 async function findFirstImageInNote(app, file) {
     try {
-        const content = await app.vault.read(file);
-        let firstImage = null;
-        let firstImagePosition = Infinity;
-        
-        // 檢查 ![[image.jpg]] 格式
-        const internalMatch = content.match(/!\[\[(.*?\.(?:jpg|jpeg|png|gif|webp))\]\]/i);
+        const content = await app.vault.cachedRead(file);
+        const internalMatch = content.match(/(?:!\[\[(.*?\.(?:jpg|jpeg|png|gif|webp))(?:\|.*?)?\]\]|!\[(.*?)\]\(\s*(\S+?(?:\.(?:jpg|jpeg|png|gif|webp)|format=(?:jpg|jpeg|png|gif|webp))[^\s)]*)\s*(?:\s+["'][^"']*["'])?\s*\))/gi);
         if (internalMatch) {
-            firstImage = internalMatch[0];
-            firstImagePosition = content.indexOf(internalMatch[0]);
+            return processMediaLink(app, internalMatch[0]);;
+        } else {    
+            return null;
         }
-        
-        // 檢查 ![alt](path) 格式，支援一般路徑和帶 format 參數的 URL
-        const markdownMatch = content.match(/!\[.*?\]\((.*?(?:\.(?:jpg|jpeg|png|gif|webp)|format=(?:jpg|jpeg|png|gif|webp)).*?)\)/i);
-        if (markdownMatch) {
-            const markdownPosition = content.indexOf(markdownMatch[0]);
-            if (markdownPosition < firstImagePosition) {
-                firstImage = markdownMatch[0];
-                firstImagePosition = markdownPosition;
-            }
-        }
-        
-        if (firstImage) {
-            return processMediaLink(app, firstImage);
-        }
-        
-        return null;
     } catch (error) {
         console.error('Error finding image in note:', error);
         return null;
@@ -308,16 +305,24 @@ class GridView extends ItemView {
 
     getDisplayText() {
         if (this.sourceMode === '') {
-            return t('GRID_VIEW_TITLE');
+            return t('grid_view_title');
         } else if (this.sourceMode === 'bookmarks') {
-            return t('BOOKMARKS_MODE');
+            return t('bookmarks_mode');
         } else if (this.sourceMode === 'folder') {
             return this.sourcePath;
         } else if (this.sourceMode === 'search') {
-            return t('SEARCH_RESULTS');
+            return t('search_results');
         } else if (this.sourceMode === 'backlinks') {
-            return t('BACKLINKS_MODE');
+            return t('backlinks_mode');
+        } else if (this.sourceMode === 'all-notes') {
+            return t('all_notes_mode');
         }
+    }
+
+    setSource(mode, path = null) {
+        this.sourceMode = mode;
+        this.sourcePath = path;
+        this.render();
     }
 
     async getFiles() {
@@ -364,8 +369,8 @@ class GridView extends ItemView {
                 }
             }
 
-            return this.sortFiles(Array.from(backlinks));
-        } else {
+            return this.sortFiles(this.ignoredFiles(Array.from(backlinks)));
+        } else if(this.sourceMode === 'bookmarks') {
             // 書籤模式
             const bookmarksPlugin = this.app.internalPlugins.plugins.bookmarks;
             if (!bookmarksPlugin?.enabled) {
@@ -388,9 +393,16 @@ class GridView extends ItemView {
             
             bookmarks.forEach(processBookmarkItem);
             return Array.from(bookmarkedFiles);
+        } else if (this.sourceMode === 'all-notes') {
+            // 所有筆記模式
+            const allNotes = this.app.vault.getMarkdownFiles()
+            return this.sortFiles(allNotes);
+        } else {
+            return [];
         }
     }
 
+        //排序檔案
     sortFiles(files) {
         if (this.sortType === 'name-asc') {
             return files.sort((a, b) => a.basename.localeCompare(b.basename));
@@ -410,10 +422,9 @@ class GridView extends ItemView {
         return files;
     }
 
-    setSource(mode, path = null) {
-        this.sourceMode = mode;
-        this.sourcePath = path;
-        this.render();
+    //忽略設定內指定的資料夾
+    ignoredFiles(files) {
+        return files.filter(file => !this.plugin.settings.ignoredFolders.some(folder => file.path.startsWith(`${folder}/`)));
     }
 
     async render() {
@@ -427,43 +438,75 @@ class GridView extends ItemView {
         // 創建頂部按鈕區域
         const headerButtonsDiv = this.containerEl.createDiv('header-buttons');
 
+        // 添加新增筆記按鈕
+        if (this.sourceMode === 'folder' && this.searchQuery === '') {
+            const newNoteButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('new_note') } });
+            newNoteButton.addEventListener('click', async () => {
+                // 取得目前時間作為檔名的一部分
+                let newFileName = `${t('untitled')}.md`;
+                let newFilePath = this.sourcePath === '/' 
+                    ? newFileName 
+                    : `${this.sourcePath}/${newFileName}`;
+
+                // 檢查檔案是否已存在，如果存在則遞增編號
+                let counter = 1;
+                while (this.app.vault.getAbstractFileByPath(newFilePath)) {
+                    newFileName = `${t('untitled')} ${counter}.md`;
+                    newFilePath = this.sourcePath === '/'
+                        ? newFileName
+                        : `${this.sourcePath}/${newFileName}`;
+                    counter++;
+                }
+
+                try {
+                    // 建立新筆記
+                    const newFile = await this.app.vault.create(newFilePath, '');
+                    // 開啟新筆記
+                    await this.app.workspace.getLeaf().openFile(newFile);
+                } catch (error) {
+                    console.error('建立新筆記時發生錯誤:', error);
+                }
+            });
+            setIcon(newNoteButton, 'square-pen');
+        }
+
         // 添加回上層按鈕（僅在資料夾模式且不在根目錄時顯示）
         if (this.sourceMode === 'folder' && this.sourcePath !== '/') {
-            const upButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('GO_UP') } });
+            const upButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('go_up') } });
             upButton.addEventListener('click', () => {
                 const parentPath = this.sourcePath.split('/').slice(0, -1).join('/') || '/';
                 this.setSource('folder', parentPath);
             });
             setIcon(upButton, 'arrow-up');
         }
-        
-        // 添加重新整理按鈕
-        const refreshButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('REFRESH') }  });
-        refreshButton.addEventListener('click', () => {
-            this.render();
-        });
-        setIcon(refreshButton, 'refresh-ccw');
 
         // 添加重新選擇資料夾按鈕
-        const reselectButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('RESELECT_FOLDER') }  });
+        const reselectButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('reselect_folder') }  });
         reselectButton.addEventListener('click', () => {
             showFolderSelectionModal(this.app, this.plugin, this);
         });
         setIcon(reselectButton, "folder");
 
+        // 添加重新整理按鈕
+        const refreshButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('refresh') }  });
+        refreshButton.addEventListener('click', () => {
+            this.render();
+        });
+        setIcon(refreshButton, 'refresh-ccw');
+
         // 添加排序按鈕
         if (this.sourceMode !== 'bookmarks') {
-            const sortButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('SORTING') }  });
+            const sortButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('sorting') }  });
             sortButton.addEventListener('click', (evt) => {
                 const menu = new Menu();
                 const sortOptions = [
-                    { value: 'name-asc', label: t('SORT_NAME_ASC'), icon: 'a-arrow-up' },
-                    { value: 'name-desc', label: t('SORT_NAME_DESC'), icon: 'a-arrow-down' },
-                    { value: 'mtime-desc', label: t('SORT_MTIME_DESC'), icon: 'clock' },
-                    { value: 'mtime-asc', label: t('SORT_MTIME_ASC'), icon: 'clock' },
-                    { value: 'ctime-desc', label: t('SORT_CTIME_DESC'), icon: 'calendar' },
-                    { value: 'ctime-asc', label: t('SORT_CTIME_ASC'), icon: 'calendar' },
-                    { value: 'random', label: t('SORT_RANDOM'), icon: 'dice' },
+                    { value: 'name-asc', label: t('sort_name_asc'), icon: 'a-arrow-up' },
+                    { value: 'name-desc', label: t('sort_name_desc'), icon: 'a-arrow-down' },
+                    { value: 'mtime-desc', label: t('sort_mtime_desc'), icon: 'clock' },
+                    { value: 'mtime-asc', label: t('sort_mtime_asc'), icon: 'clock' },
+                    { value: 'ctime-desc', label: t('sort_ctime_desc'), icon: 'calendar' },
+                    { value: 'ctime-asc', label: t('sort_ctime_asc'), icon: 'calendar' },
+                    { value: 'random', label: t('sort_random'), icon: 'dice' },
                 ];
 
                 sortOptions.forEach(option => {
@@ -480,35 +523,44 @@ class GridView extends ItemView {
                 });
                 menu.showAtMouseEvent(evt);
             });
-            setIcon(sortButton, 'arrow-down-up');
+            setIcon(sortButton, 'arrow-up-narrow-wide');
         }
 
         // 添加搜尋按鈕
         const searchButtonContainer = headerButtonsDiv.createDiv('search-button-container');
         
         // 搜尋按鈕
-        const searchButton = searchButtonContainer.createEl('button', { 
-            attr: { 
-                'aria-label': this.searchQuery ? t('CLEAR_SEARCH') : t('SEARCH'),
-                'class': this.searchQuery ? 'active clear-search' : ''
-            } 
+        const searchButton = searchButtonContainer.createEl('button', {
+            cls: 'search-button',
+            attr: { 'aria-label': t('search') }
         });
+        setIcon(searchButton, 'search');
         searchButton.addEventListener('click', () => {
-            if (this.searchQuery) {
-                // 如果已經有搜尋關鍵字，則清除搜尋
+            
+            this.showSearchModal();
+        });
+
+        // 如果有搜尋關鍵字，顯示搜尋文字和取消按鈕
+        if (this.searchQuery) {
+            searchButton.style.display = 'none';
+            const searchTextContainer = searchButtonContainer.createDiv('search-text-container');
+
+            // 創建取消按鈕
+            const clearButton = searchTextContainer.createDiv('clear-button');
+            setIcon(clearButton, 'x');
+            clearButton.addEventListener('click', (e) => {
+                e.stopPropagation();  // 防止觸發搜尋文字的點擊事件
                 this.searchQuery = '';
                 this.render();
-            } else {
-                // 如果沒有搜尋關鍵字，則顯示搜尋對話框
-                this.showSearchModal();
-            }
-        });
-        setIcon(searchButton, this.searchQuery ? 'x' : 'search');
+            });
 
-        // 如果有搜尋關鍵字，顯示搜尋文字
-        if (this.searchQuery) {
-            const searchText = searchButtonContainer.createSpan('search-text');
+            const searchText = searchTextContainer.createSpan('search-text');
             searchText.textContent = this.searchQuery;
+            // 讓搜尋文字可點選
+            searchText.style.cursor = 'pointer';
+            searchText.addEventListener('click', () => {
+                this.showSearchModal(this.searchQuery);
+            });
         }
 
         // 創建內容區域
@@ -534,18 +586,18 @@ class GridView extends ItemView {
 
         // 如果是書籤模式且書籤插件未啟用，顯示提示
         if (this.sourceMode === 'bookmarks' && !this.app.internalPlugins.plugins.bookmarks?.enabled) {
-            new Notice(t('BOOKMARKS_PLUGIN_DISABLED'));
+            new Notice(t('bookmarks_plugin_disabled'));
             return;
         }
 
         // 如果是反向連結模式，但沒有活動中的檔案
         if (this.sourceMode === 'backlinks' && !this.app.workspace.getActiveFile()) {
-            new Notice(t('NO_BACKLINKS'));
+            new Notice(t('no_backlinks'));
             return;
         }
 
         // 如果是資料夾模式，先顯示所有子資料夾
-        if (this.sourceMode === 'folder') {
+        if (this.sourceMode === 'folder' && this.searchQuery === '') {
             const currentFolder = this.app.vault.getAbstractFileByPath(this.sourcePath || '/');
             if (currentFolder instanceof TFolder) {
                 // 只取得當前資料夾中的 Markdown 檔案，不包含子資料夾
@@ -559,13 +611,7 @@ class GridView extends ItemView {
                     })
                     .sort((a, b) => a.name.localeCompare(b.name));
 
-                // 如果有搜尋關鍵字，過濾資料夾
-                const filteredSubfolders = this.searchQuery
-                    ? subfolders.filter(folder => 
-                        folder.name.toLowerCase().includes(this.searchQuery.toLowerCase()))
-                    : subfolders;
-
-                for (const folder of filteredSubfolders) {
+                for (const folder of subfolders) {
                     const folderEl = container.createDiv('grid-item folder-item');
                     
                     const contentArea = folderEl.createDiv('content-area');
@@ -583,7 +629,7 @@ class GridView extends ItemView {
         let files = [];
         if (this.searchQuery) {
             // 取得 vault 中所有的 Markdown 檔案
-            const allMarkdownFiles = this.app.vault.getFiles().filter(file => file.extension === 'md');
+            const allMarkdownFiles = this.app.vault.getMarkdownFiles();
             // 根據搜尋關鍵字進行過濾（不分大小寫）
             const lowerCaseSearchQuery = this.searchQuery.toLowerCase();
             // 使用 Promise.all 來非同步地讀取所有檔案內容
@@ -602,6 +648,9 @@ class GridView extends ItemView {
             // 獲取檔案列表並根據搜尋關鍵字過濾
             files = await this.getFiles();
         }
+
+        //忽略檔案
+        files = this.ignoredFiles(files)
 
         // 創建 Intersection Observer
         const observer = new IntersectionObserver((entries, observer) => {
@@ -666,17 +715,35 @@ class GridView extends ItemView {
             observer.observe(noteEl);
             
             // 點擊時開啟筆記
-            noteEl.addEventListener('click', () => {
-                this.app.workspace.getLeaf().openFile(file);
+            noteEl.addEventListener('click', (event) => {
+                if (event.ctrlKey) {
+                    this.app.workspace.getLeaf(true).openFile(file);
+                } else {
+                    this.app.workspace.getLeaf().openFile(file);
+                }
             });
-
+            
             // 添加右鍵選單
             noteEl.addEventListener('contextmenu', (event) => {
                 event.preventDefault();
                 const menu = new Menu();
+                
+                this.app.workspace.trigger("file-menu", menu, file);
+
+                // 新增在新分頁開啟選項
                 menu.addItem((item) => {
                     item
-                        .setTitle(t('DELETE_NOTE'))
+                        .setTitle(t('open_in_new_tab'))
+                        .setIcon('external-link')
+                        .onClick(() => {
+                            this.app.workspace.getLeaf(true).openFile(file);
+                        });
+                });
+
+                // 刪除選項
+                menu.addItem((item) => {
+                    item
+                        .setTitle(t('delete_note'))
                         .setIcon('trash')
                         .onClick(async () => {
                             await this.app.vault.trash(file, false);
@@ -685,29 +752,53 @@ class GridView extends ItemView {
                 menu.showAtMouseEvent(event);
             });
         }
+
+        if (this.plugin.statusBarItem) {
+            this.plugin.statusBarItem.setText(`${files.length} ${t('notes')}`);
+        }
     }
 
     // 顯示搜尋 modal
-    showSearchModal() {
+    showSearchModal(defaultQuery = '') {
         const { Modal } = require('obsidian');
 
         class SearchModal extends Modal {
-            constructor(app, gridView) {
+            constructor(app, gridView, defaultQuery) {
                 super(app);
                 this.gridView = gridView;
+                this.defaultQuery = defaultQuery;
             }
 
             onOpen() {
                 const { contentEl } = this;
                 contentEl.empty();
-                contentEl.createEl('h2', { text: t('SEARCH') });
+                contentEl.createEl('h2', { text: t('search') });
+
+                // 創建搜尋輸入框容器
+                const searchContainer = contentEl.createDiv('search-container');
 
                 // 創建搜尋輸入框
-                const searchContainer = contentEl.createDiv('search-container');
                 const searchInput = searchContainer.createEl('input', {
                     type: 'text',
-                    value: '',
-                    placeholder: t('SEARCH_PLACEHOLDER')
+                    value: this.defaultQuery,
+                    placeholder: t('search_placeholder')
+                });
+
+                // 創建清空按鈕
+                const clearButton = searchContainer.createDiv('search-clear-button');
+                clearButton.style.display = this.defaultQuery ? 'flex' : 'none';
+                setIcon(clearButton, 'x');
+
+                // 監聽輸入框變化來控制清空按鈕的顯示
+                searchInput.addEventListener('input', () => {
+                    clearButton.style.display = searchInput.value ? 'flex' : 'none';
+                });
+
+                // 清空按鈕點擊事件
+                clearButton.addEventListener('click', () => {
+                    searchInput.value = '';
+                    clearButton.style.display = 'none';
+                    searchInput.focus();
                 });
 
                 // 創建按鈕容器
@@ -715,12 +806,12 @@ class GridView extends ItemView {
 
                 // 創建搜尋按鈕
                 const searchButton = buttonContainer.createEl('button', {
-                    text: t('SEARCH')
+                    text: t('search')
                 });
 
                 // 創建取消按鈕
                 const cancelButton = buttonContainer.createEl('button', {
-                    text: t('CANCEL')
+                    text: t('cancel')
                 });
 
                 // 綁定搜尋事件
@@ -741,8 +832,9 @@ class GridView extends ItemView {
                     this.close();
                 });
 
-                // 自動聚焦到搜尋輸入框
+                // 自動聚焦到搜尋輸入框，並將游標移到最後
                 searchInput.focus();
+                searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
             }
 
             onClose() {
@@ -751,7 +843,7 @@ class GridView extends ItemView {
             }
         }
 
-        new SearchModal(this.app, this).open();
+        new SearchModal(this.app, this, defaultQuery).open();
     }
 
     // 保存視圖狀態
@@ -780,16 +872,18 @@ class GridView extends ItemView {
 
     // 註冊檔案監聽器
     registerFileWatcher() {
-        ['create', 'modify', 'delete'].forEach(eventName => {
+        ['create', 'delete'].forEach(eventName => {
             this.registerEvent(
                 this.app.vault.on(eventName, (file) => {
-                    if (this.sourceMode === 'folder' && this.sourcePath && this.searchQuery === '') {
-                        const fileDirPath = file.path.split('/').slice(0, -1).join('/') || '/';
-                        if (fileDirPath === this.sourcePath) {
+                    if (file instanceof TFile && file.extension === 'md') {
+                        if (this.sourceMode === 'folder' && this.sourcePath && this.searchQuery === '') {
+                            const fileDirPath = file.path.split('/').slice(0, -1).join('/') || '/';
+                            if (fileDirPath === this.sourcePath) {
+                                this.render();
+                            } 
+                        } else {
                             this.render();
-                        } 
-                    } else {
-                        this.render();
+                        }
                     }
                 })
             );
@@ -798,14 +892,16 @@ class GridView extends ItemView {
         //更名及檔案移動
         this.registerEvent(
             this.app.vault.on('rename', (file, oldPath) => {
-                if (this.sourceMode === 'folder' && this.sourcePath && this.searchQuery === '') {
-                    const fileDirPath = file.path.split('/').slice(0, -1).join('/') || '/';
-                    const oldDirPath = oldPath.split('/').slice(0, -1).join('/') || '/';
-                    if (fileDirPath === this.sourcePath || oldDirPath === this.sourcePath) {
+                if (file instanceof TFile && file.extension === 'md') {
+                    if (this.sourceMode === 'folder' && this.sourcePath && this.searchQuery === '') {
+                        const fileDirPath = file.path.split('/').slice(0, -1).join('/') || '/';
+                        const oldDirPath = oldPath.split('/').slice(0, -1).join('/') || '/';
+                        if (fileDirPath === this.sourcePath || oldDirPath === this.sourcePath) {
+                            this.render();
+                        } 
+                    } else {
                         this.render();
-                    } 
-                } else {
-                    this.render();
+                    }
                 }
             })
         );
@@ -841,14 +937,14 @@ class GridExplorerSettingTab extends require('obsidian').PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
-        containerEl.createEl('h2', { text: t('GRID_VIEW_SETTINGS') });
+        containerEl.createEl('h2', { text: t('grid_view_settings') });
 
         // 忽略的資料夾設定
         new Setting(containerEl)
-            .setName(t('IGNORED_FOLDERS'))
-            .setDesc(t('IGNORED_FOLDERS_DESC'))
+            .setName(t('ignored_folders'))
+            .setDesc(t('ignored_folders_desc'))
             .addTextArea(text => text
-                .setPlaceholder(t('IGNORED_FOLDERS_PLACEHOLDER'))
+                .setPlaceholder(t('ignored_folders_placeholder'))
                 .setValue(this.plugin.settings.ignoredFolders.join('\n'))
                 .onChange(async (value) => {
                     // 將文字區域的內容轉換為陣列，並過濾掉空行
@@ -857,20 +953,20 @@ class GridExplorerSettingTab extends require('obsidian').PluginSettingTab {
                         .map(folder => folder.trim())
                         .filter(folder => folder.length > 0);
                     await this.plugin.saveSettings();
-                }));
+                }).inputEl.rows = 8);
 
         // 預設排序模式設定
         new Setting(containerEl)
-            .setName(t('DEFAULT_SORT_TYPE'))
-            .setDesc(t('DEFAULT_SORT_TYPE_DESC'))
+            .setName(t('default_sort_type'))
+            .setDesc(t('default_sort_type_desc'))
             .addDropdown(dropdown => dropdown
-                .addOption('name-asc', t('SORT_NAME_ASC'))
-                .addOption('name-desc', t('SORT_NAME_DESC'))
-                .addOption('mtime-desc', t('SORT_MTIME_DESC'))
-                .addOption('mtime-asc', t('SORT_MTIME_ASC'))
-                .addOption('ctime-desc', t('SORT_CTIME_DESC'))
-                .addOption('ctime-asc', t('SORT_CTIME_ASC'))
-                .addOption('random', t('SORT_RANDOM'))
+                .addOption('name-asc', t('sort_name_asc'))
+                .addOption('name-desc', t('sort_name_desc'))
+                .addOption('mtime-desc', t('sort_mtime_desc'))
+                .addOption('mtime-asc', t('sort_mtime_asc'))
+                .addOption('ctime-desc', t('sort_ctime_desc'))
+                .addOption('ctime-asc', t('sort_ctime_asc'))
+                .addOption('random', t('sort_random'))
                 .setValue(this.plugin.settings.defaultSortType)
                 .onChange(async (value) => {
                     this.plugin.settings.defaultSortType = value;
@@ -879,8 +975,8 @@ class GridExplorerSettingTab extends require('obsidian').PluginSettingTab {
 
         // 網格項目寬度設定
         new Setting(containerEl)
-            .setName(t('GRID_ITEM_WIDTH'))
-            .setDesc(t('GRID_ITEM_WIDTH_DESC'))
+            .setName(t('grid_item_width'))
+            .setDesc(t('grid_item_width_desc'))
             .addSlider(slider => slider
                 .setLimits(200, 600, 50)
                 .setValue(this.plugin.settings.gridItemWidth)
@@ -892,8 +988,8 @@ class GridExplorerSettingTab extends require('obsidian').PluginSettingTab {
 
         // 圖片區域寬度設定
         new Setting(containerEl)
-            .setName(t('IMAGE_AREA_WIDTH'))
-            .setDesc(t('IMAGE_AREA_WIDTH_DESC'))
+            .setName(t('image_area_width'))
+            .setDesc(t('image_area_width_desc'))
             .addSlider(slider => slider
                 .setLimits(50, 300, 10)
                 .setValue(this.plugin.settings.imageAreaWidth)
@@ -905,8 +1001,8 @@ class GridExplorerSettingTab extends require('obsidian').PluginSettingTab {
 
         // 圖片區域高度設定
         new Setting(containerEl)
-            .setName(t('IMAGE_AREA_HEIGHT'))
-            .setDesc(t('IMAGE_AREA_HEIGHT_DESC'))
+            .setName(t('image_area_height'))
+            .setDesc(t('image_area_height_desc'))
             .addSlider(slider => slider
                 .setLimits(50, 300, 10)
                 .setValue(this.plugin.settings.imageAreaHeight)
@@ -932,14 +1028,14 @@ async function showFolderSelectionModal(app, plugin, activeView = null) {
         onOpen() {
             const { contentEl } = this;
             contentEl.empty();
-            contentEl.createEl('h2', { text: t('SELECT_FOLDERS') });
+            contentEl.createEl('h2', { text: t('select_folders') });
 
             // 建立書籤選項
             const bookmarksPlugin = this.app.internalPlugins.plugins.bookmarks;
             if (bookmarksPlugin?.enabled) {
                 const bookmarkOption = contentEl.createEl('div', {
                     cls: 'grid-view-folder-option',
-                    text: `📑 ${t('BOOKMARKS_MODE')}`
+                    text: `📑 ${t('bookmarks_mode')}`
                 });
                 bookmarkOption.style.cursor = 'pointer';
                 bookmarkOption.style.padding = '8px';
@@ -974,7 +1070,7 @@ async function showFolderSelectionModal(app, plugin, activeView = null) {
                     if (searchInput.value.trim().length > 0) {
                         const searchOption = contentEl.createEl('div', {
                             cls: 'grid-view-folder-option',
-                            text: `🔍 ${t('SEARCH_RESULTS')}: ${searchInput.value}`
+                            text: `🔍 ${t('search_results')}: ${searchInput.value}`
                         });
                         searchOption.style.cursor = 'pointer';
                         searchOption.style.padding = '8px';
@@ -1008,7 +1104,7 @@ async function showFolderSelectionModal(app, plugin, activeView = null) {
                 const activeFileName = activeFile ? `: ${activeFile.basename}` : '';
                 const backlinksOption = contentEl.createEl('div', {
                     cls: 'grid-view-folder-option',
-                    text: `🔗 ${t('BACKLINKS_MODE')}${activeFileName}`
+                    text: `🔗 ${t('backlinks_mode')}${activeFileName}`
                 });
                 backlinksOption.style.cursor = 'pointer';
                 backlinksOption.style.padding = '8px';
@@ -1033,6 +1129,35 @@ async function showFolderSelectionModal(app, plugin, activeView = null) {
                     backlinksOption.style.backgroundColor = '';
                 });
             }
+
+            
+            // 建立所有筆記選項
+            const allNotesOption = contentEl.createEl('div', {
+                cls: 'grid-view-folder-option',
+                text: `📔 ${t('all_notes_mode')}`
+            });
+            allNotesOption.style.cursor = 'pointer';
+            allNotesOption.style.padding = '8px';
+            allNotesOption.style.marginBottom = '8px';
+            allNotesOption.style.border = '1px solid var(--background-modifier-border)';
+            allNotesOption.style.borderRadius = '4px';
+
+            allNotesOption.addEventListener('click', () => {
+                if (this.activeView) {
+                    this.activeView.setSource('all-notes');
+                } else {
+                    this.plugin.activateView('all-notes');
+                }
+                this.close();
+            });
+
+            allNotesOption.addEventListener('mouseenter', () => {
+                allNotesOption.style.backgroundColor = 'var(--background-modifier-hover)';
+            });
+
+            allNotesOption.addEventListener('mouseleave', () => {
+                allNotesOption.style.backgroundColor = '';
+            });
 
             // 取得所有資料夾（排除被忽略的資料夾）
             const folders = app.vault.getAllLoadedFiles()
@@ -1100,18 +1225,21 @@ module.exports = class GridExplorerPlugin extends Plugin {
         // 添加命令以開啟網格視圖選擇 modal
         this.addCommand({
             id: 'open-grid-view',
-            name: t('OPEN_GRID_VIEW'),
+            name: t('open_grid_view'),
             callback: () => {
                 showFolderSelectionModal(this.app, this);
             }
         });
 
-        this.addRibbonIcon('grid', t('OPEN_GRID_VIEW'), () => {
+        this.addRibbonIcon('grid', t('open_grid_view'), () => {
             showFolderSelectionModal(this.app, this);
         });
 
         // 註冊設定頁面
         this.addSettingTab(new GridExplorerSettingTab(this.app, this));
+
+        // 新增狀態列元件
+        this.statusBarItem = this.addStatusBarItem();
 
         // 註冊資料夾的右鍵選單
         this.registerEvent(
@@ -1119,7 +1247,7 @@ module.exports = class GridExplorerPlugin extends Plugin {
                 if (file instanceof TFolder) {
                     menu.addItem((item) => {
                         item
-                        .setTitle(t('OPEN_IN_GRID_VIEW'))
+                        .setTitle(t('open_in_grid_view'))
                         .setIcon('grid')
                         .onClick(() => {
                             this.activateView('folder', file.path);

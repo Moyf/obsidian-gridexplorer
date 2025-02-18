@@ -1,4 +1,4 @@
-# Obsidian GridExplorer
+# GridExplorer
 
 [繁體中文](README_zhTW.md) | English
 
