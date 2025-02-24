@@ -57,6 +57,32 @@
     min-width: 0;
 }
 
+.ge-content-area span {
+    margin: 0;
+    font-size: var(--h5-size);
+    color: var(--text-normal);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    width: 100%;
+}
+
+.ge-content-area p {
+    margin: 8px 0 0 0;
+    color: var(--text-faint);
+    font-size: 0.85em;
+    line-height: 1.4;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.ge-content-area p:empty {
+    margin: 0;
+}
+
 .ge-image-area {
     width: var(--image-area-width);
     height: var(--image-area-height);
@@ -68,30 +94,6 @@
     height: 100%;
     object-fit: cover;
     border-radius: 4px;
-}
-
-.ge-grid-item h3 {
-    margin: 0;
-    font-size: var(--font-text-size);
-    color: var(--text-normal);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.ge-grid-item p {
-    margin: 8px 0 0 0;
-    color: var(--text-faint);
-    font-size: 0.85em;
-    line-height: 1.4;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-}
-
-.ge-grid-item p:empty {
-    margin: 0;
 }
 
 /* 資料夾項目的特殊樣式 */
@@ -330,4 +332,20 @@
 .ge-search-clear-button:hover {
     color: var(--text-normal);
     background-color: var(--background-modifier-hover);
+}
+
+.ge-loading-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    font-size: 1.2em;
+    color: var(--text-muted);
+}
+
+.ge-no-files {
+    text-align: center;
+    padding: 2em;
+    color: var(--text-muted);
+    font-size: 1.2em;
 }

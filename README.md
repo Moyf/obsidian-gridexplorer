@@ -4,7 +4,7 @@
 
 This is a grid view plugin designed for Obsidian, aimed at providing a more intuitive way to browse and manage your notes and folders.
 
-![demo1](demo1.jpg)
+![demo1](assets/demo1.jpg)
 
 ## Features
 
