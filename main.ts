@@ -37,7 +37,6 @@ export default class GridExplorerPlugin extends Plugin {
 
         // 註冊狀態列項目
         this.statusBarItem = this.addStatusBarItem();
-        this.statusBarItem.setText(t('status_bar_text'));
         this.statusBarItem.onClickEvent(() => {
             this.activateView();
         });
@@ -61,18 +60,6 @@ export default class GridExplorerPlugin extends Plugin {
         );
     }
 
-    async loadSettings() {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-    }
-
-    async saveSettings() {
-        await this.saveData(this.settings);
-    }
-
-    onunload() {
-        console.log('Grid Explorer plugin unloaded');
-    }
-
     async activateView(mode = 'bookmarks', path = '') {
         const { workspace } = this.app;
 
@@ -90,5 +77,13 @@ export default class GridExplorerPlugin extends Plugin {
 
         // 確保視圖是活躍的
         workspace.revealLeaf(leaf);
+    }
+
+    async loadSettings() {
+        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    }
+
+    async saveSettings() {
+        await this.saveData(this.settings);
     }
 }

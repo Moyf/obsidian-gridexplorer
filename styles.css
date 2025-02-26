@@ -349,3 +349,46 @@
     color: var(--text-muted);
     font-size: 1.2em;
 }
+
+/* 忽略資料夾設定 */
+.ge-ignored-folders-container {
+    margin-bottom: 16px;
+}
+
+.ge-ignored-folders-list {
+    list-style: none;
+    padding: 0;
+}
+
+.ge-ignored-folder-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    margin-bottom: 4px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    background-color: var(--background-primary);
+}
+
+.ge-ignored-folder-path {
+    flex-grow: 1;
+    margin-right: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ge-ignored-folder-remove {
+    background-color: var(--interactive-normal);
+    color: var(--text-normal);
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.ge-ignored-folder-remove:hover {
+    background-color: var(--interactive-hover);
+}
