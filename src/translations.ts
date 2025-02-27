@@ -7,7 +7,6 @@ interface Translations {
     'ja': { [key: string]: string };
 }
 
-// 定義有效的語言代碼型別
 type LanguageKey = keyof Translations;
 
 // 全域翻譯函式
@@ -16,6 +15,7 @@ export function t(key: string): string {
     const translations = TRANSLATIONS[lang] || TRANSLATIONS['en'];
     return translations[key] || key;
 }
+
 // 語系檔案
 export const TRANSLATIONS: Translations = {
     'zh-TW': {
@@ -55,10 +55,12 @@ export const TRANSLATIONS: Translations = {
         // 設定
         'grid_view_settings': '網格視圖設定',
         'ignored_folders': '忽略的資料夾',
-        'ignored_folders_desc': '在這裡設定要忽略的資料夾（每行一個資料夾路徑）',
-        'ignored_folders_placeholder': '範例：\n.obsidian\nTemplates',
+        'ignored_folders_desc': '在這裡設定要忽略的資料夾',
+        'add_ignored_folder': '新增忽略資料夾',
+        'no_ignored_folders': '沒有忽略的資料夾。',
+        'remove': '移除',
         'default_sort_type': '預設排序模式',
-        'default_sort_type_desc': '設定開啟網格視圖時的預設排序方式',
+        'default_sort_type_desc': '設定開啟網格視圖時的預設排序模式',
         'grid_item_width': '網格項目寬度',
         'grid_item_width_desc': '設定網格項目的寬度',
         'image_area_width': '圖片區域寬度',
@@ -93,7 +95,7 @@ export const TRANSLATIONS: Translations = {
         'notes': 'Notes',
 
         // View Titles
-        'grid_view_title': 'Grid View',
+        'grid_view_title': 'Grid view',
         'bookmarks_mode': 'Bookmarks',
         'folder_mode': 'Folder',
         'search_results': 'Search results',
@@ -112,8 +114,10 @@ export const TRANSLATIONS: Translations = {
         // Settings
         'grid_view_settings': 'Grid view settings',
         'ignored_folders': 'Ignored folders',
-        'ignored_folders_desc': 'Set folders to be ignored (one path per line)',
-        'ignored_folders_placeholder': 'Example:\n.obsidian\nTemplates',
+        'ignored_folders_desc': 'Set folders to be ignored.',
+        'add_ignored_folder': 'Add ignored folder',
+        'no_ignored_folders': 'No ignored folders.',
+        'remove': 'Remove',
         'default_sort_type': 'Default sort type',
         'default_sort_type_desc': 'Set the default sorting method when opening Grid View',
         'grid_item_width': 'Grid item width',
@@ -125,7 +129,7 @@ export const TRANSLATIONS: Translations = {
 
         // Folder Selection Dialog
         'select_folders': 'Select folder',
-        'open_grid_view': 'Open Grid View',
+        'open_grid_view': 'Open grid view',
         'open_in_grid_view': 'Open in grid view',
         'delete_note': 'Delete note',
         'open_in_new_tab': 'Open in new tab',
@@ -169,10 +173,12 @@ export const TRANSLATIONS: Translations = {
         // 设置
         'grid_view_settings': '网格视图设置',
         'ignored_folders': '忽略的文件夹',
-        'ignored_folders_desc': '在这里设置要忽略的文件夹（每行一个文件夹路径）',
-        'ignored_folders_placeholder': '範例：\n.obsidian\nTemplates',
-        'default_sort_type': '預设排序模式',
-        'default_sort_type_desc': '设置开启网格视图时的預设排序方式',
+        'ignored_folders_desc': '在这里设置要忽略的文件夹',
+        'add_ignored_folder': '新增忽略資料夾',
+        'no_ignored_folders': '沒有忽略的資料夾。',
+        'remove': '移除',
+        'default_sort_type': '預設排序模式',
+        'default_sort_type_desc': '设置开启网格视图时的預设排序模式',
         'grid_item_width': '网格项目宽度',
         'grid_item_width_desc': '设置网格项目的宽度',
         'image_area_width': '圖片區域寬度',
@@ -226,8 +232,10 @@ export const TRANSLATIONS: Translations = {
         // 設定
         'grid_view_settings': 'グリッドビューセッティング',
         'ignored_folders': '無視するフォルダ',
-        'ignored_folders_desc': '無視するフォルダを設定します（1行に1つのフォルダパス）',
-        'ignored_folders_placeholder': '例：\n.obsidian\nTemplates',
+        'ignored_folders_desc': '無視するフォルダを設定します',
+        'add_ignored_folder': '無視するフォルダを追加',
+        'no_ignored_folders': '無視するフォルダはありません',
+        'remove': '削除',
         'default_sort_type': 'デフォルトのソートタイプ',
         'default_sort_type_desc': 'グリッドビューを開くときのデフォルトのソート方法を設定します',
         'grid_item_width': 'グリッドアイテムの幅',
