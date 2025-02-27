@@ -1,6 +1,6 @@
 # GridExplorer
 
-中文 | [English](README.md)
+中文 | [English](README.md) | [日本語](README_ja.md)
 
 這是一個為 Obsidian 設計的網格視圖插件，旨在提供更直觀的方式來瀏覽和管理您的筆記和資料夾。
 
