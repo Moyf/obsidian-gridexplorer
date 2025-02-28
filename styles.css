@@ -350,6 +350,41 @@
     font-size: 1.2em;
 }
 
+/* 資料夾搜尋輸入框樣式 */
+.ge-folder-search-container {
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.ge-folder-search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    background-color: var(--background-primary);
+    color: var(--text-normal);
+    font-size: var(--font-ui-small);
+}
+
+.ge-folder-search-input:focus {
+    border-color: var(--interactive-accent);
+    box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+    outline: none;
+}
+
+.ge-folder-options-container {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* 鍵盤導航選中項的樣式 */
+.ge-selected-option {
+    background-color: var(--background-modifier-hover);
+    border-left: 3px solid var(--interactive-accent) !important;
+    padding-left: 5px !important;
+}
+
 /* 忽略資料夾設定 */
 .ge-ignored-folders-container {
     margin-bottom: 16px;

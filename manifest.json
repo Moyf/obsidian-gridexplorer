@@ -1,8 +1,8 @@
 {
   "id": "gridexplorer",
   "name": "GridExplorer",
-  "version": "1.7.2",
-  "minAppVersion": "1.8.0",
+  "version": "1.7.5",
+  "minAppVersion": "1.1.0",
   "description": "Browse note files in a grid view.",
   "author": "Devon22",
   "authorUrl": "https://github.com/Devon22",
