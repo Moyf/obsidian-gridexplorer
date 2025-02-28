@@ -11,7 +11,8 @@ type LanguageKey = keyof Translations;
 
 // 全域翻譯函式
 export function t(key: string): string {
-    const lang: LanguageKey = getLanguage() as LanguageKey;
+    const lang = window.localStorage.getItem('language') as LanguageKey;
+    //const lang: LanguageKey = getLanguage() as LanguageKey;
     const translations = TRANSLATIONS[lang] || TRANSLATIONS['en'];
     return translations[key] || key;
 }
@@ -76,6 +77,7 @@ export const TRANSLATIONS: Translations = {
         'open_in_new_tab': '在新分頁開啟',
         'searching': '搜尋中...',
         'no_files': '沒有找到任何筆記',
+        'filter_folders': '篩選資料夾...',
     },
     'en': {
         // Notifications
@@ -135,6 +137,7 @@ export const TRANSLATIONS: Translations = {
         'open_in_new_tab': 'Open in new tab',
         'searching': 'Searching...',
         'no_files': 'No notes found',
+        'filter_folders': 'Filter folders...',
     },
     'zh': {
         // 通知信息
@@ -191,9 +194,10 @@ export const TRANSLATIONS: Translations = {
         'open_grid_view': '开启网格视图',
         'open_in_grid_view': '在网格视图中开启',
         'delete_note': '删除笔记',
-        'open_in_new_tab': '在新分頁開啟',
+        'open_in_new_tab': '在新标签页打开',
         'searching': '搜索中...',
         'no_files': '没有找到任何笔记',
+        'filter_folders': '筛选文件夹...',
     },
     'ja': {
         // 通知メッジ
@@ -253,5 +257,6 @@ export const TRANSLATIONS: Translations = {
         'open_in_new_tab': '新しいタブで開く',
         'searching': '検索中...',
         'no_files': 'ノートが見つかりません',
+        'filter_folders': 'フォルダをフィルタリング...',
     },
 };

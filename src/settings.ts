@@ -32,22 +32,6 @@ export class GridExplorerSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
-        // 忽略的資料夾設定
-        new Setting(containerEl)
-            .setName(t('ignored_folders'))
-            .setDesc(t('ignored_folders_desc'))
-            .addTextArea(text => text
-                .setPlaceholder(t('ignored_folders_placeholder'))
-                .setValue(this.plugin.settings.ignoredFolders.join('\n'))
-                .onChange(async (value) => {
-                    // 將文字區域的內容轉換為陣列，並過濾掉空行
-                    this.plugin.settings.ignoredFolders = value
-                        .split('\n')
-                        .map(folder => folder.trim())
-                        .filter(folder => folder.length > 0);
-                    await this.plugin.saveSettings();
-                }).inputEl.rows = 8);
-
         // 預設排序模式設定
         new Setting(containerEl)
             .setName(t('default_sort_type'))
@@ -112,5 +96,89 @@ export class GridExplorerSettingTab extends PluginSettingTab {
                         await this.plugin.saveSettings();
                     });
             });
+        
+        // 忽略的資料夾設定
+        const ignoredFoldersContainer = containerEl.createDiv('ignored-folders-container');
+        
+        new Setting(containerEl)
+            .setName(t('ignored_folders'))
+            .setDesc(t('ignored_folders_desc'))
+            .setHeading();
+        
+        // 新增資料夾選擇器
+        new Setting(ignoredFoldersContainer)
+            .setName(t('add_ignored_folder'))
+            .addDropdown(dropdown => {
+                // 獲取所有資料夾
+                const folders = this.app.vault.getAllFolders()
+                    .filter(folder => folder.path !== '/') // 排除根目錄
+                    .sort((a, b) => a.path.localeCompare(b.path));
+                
+                // 新增空選項作為預設值
+                dropdown.addOption('', t('select_folders'));
+                
+                // 新增所有資料夾作為選項
+                folders.forEach(folder => {
+                    // 只顯示尚未被忽略的資料夾
+                    if (!this.plugin.settings.ignoredFolders.includes(folder.path)) {
+                        dropdown.addOption(folder.path, folder.path);
+                    }
+                });
+                
+                dropdown.onChange(async (value) => {
+                    if (value) {
+                        // 新增到忽略列表
+                        this.plugin.settings.ignoredFolders.push(value);
+                        await this.plugin.saveSettings();
+                        
+                        // 重新渲染列表
+                        this.renderIgnoredFoldersList(ignoredFoldersList);
+                        
+                        // 重設下拉選單
+                        dropdown.setValue('');
+                        this.display();
+                    }
+                });
+            });
+
+        // 顯示目前已忽略的資料夾列表
+        const ignoredFoldersList = ignoredFoldersContainer.createDiv('ge-ignored-folders-list');
+        this.renderIgnoredFoldersList(ignoredFoldersList);
+        
+        containerEl.appendChild(ignoredFoldersContainer);
+    }
+
+    // 渲染已忽略的資料夾列表
+    renderIgnoredFoldersList(containerEl: HTMLElement) {
+        containerEl.empty();
+        
+        if (this.plugin.settings.ignoredFolders.length === 0) {
+            containerEl.createEl('p', { text: t('no_ignored_folders') });
+            return;
+        }
+        
+        const list = containerEl.createEl('ul', { cls: 'ge-ignored-folders-list' });
+        
+        this.plugin.settings.ignoredFolders.forEach(folder => {
+            const item = list.createEl('li', { cls: 'ge-ignored-folder-item' });
+            
+            item.createSpan({ text: folder, cls: 'ge-ignored-folder-path' });
+            
+            const removeButton = item.createEl('button', { 
+                cls: 'ge-ignored-folder-remove',
+                text: t('remove')
+            });
+            
+            removeButton.addEventListener('click', async () => {
+                // 從忽略列表中移除
+                this.plugin.settings.ignoredFolders = this.plugin.settings.ignoredFolders
+                    .filter(f => f !== folder);
+                await this.plugin.saveSettings();
+                
+                // 重新渲染列表
+                this.renderIgnoredFoldersList(containerEl);
+                this.display();
+            });
+        });
     }
 }
