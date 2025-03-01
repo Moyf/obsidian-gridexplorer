@@ -8,6 +8,7 @@ export interface GallerySettings {
     gridItemWidth: number;
     imageAreaWidth: number;
     imageAreaHeight: number;
+    enableFileWatcher: boolean;
 }
 
 // 預設設定
@@ -16,7 +17,8 @@ export const DEFAULT_SETTINGS: GallerySettings = {
     defaultSortType: 'mtime-desc', // 預設排序模式：修改時間倒序
     gridItemWidth: 300, // 網格項目寬度，預設 300
     imageAreaWidth: 100, // 圖片區域寬度，預設 100
-    imageAreaHeight: 100 // 圖片區域高度，預設 100
+    imageAreaHeight: 100, // 圖片區域高度，預設 100
+    enableFileWatcher: true // 預設啟用檔案監控
 };
 
 // 設定頁面類別
@@ -48,6 +50,19 @@ export class GridExplorerSettingTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.defaultSortType)
                     .onChange(async (value) => {
                         this.plugin.settings.defaultSortType = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
+
+        // 檔案監控功能設定
+        new Setting(containerEl)
+            .setName(t('enable_file_watcher'))
+            .setDesc(t('enable_file_watcher_desc'))
+            .addToggle(toggle => {
+                toggle
+                    .setValue(this.plugin.settings.enableFileWatcher)
+                    .onChange(async (value) => {
+                        this.plugin.settings.enableFileWatcher = value;
                         await this.plugin.saveSettings();
                     });
             });

@@ -1,4 +1,4 @@
-import { App, Modal, Setting } from 'obsidian';
+import { App, Modal, Setting, Platform } from 'obsidian';
 import GridExplorerPlugin from '../main';
 import { GridView } from './GridView';
 import { t } from './translations';
@@ -28,17 +28,23 @@ export class FolderSelectionModal extends Modal {
         new Setting(contentEl).setName(t('select_folders')).setHeading();
 
         // 添加搜尋輸入框
-        const searchContainer = contentEl.createEl('div', { cls: 'ge-folder-search-container' });
+        const searchContainer = contentEl.createEl('div', { 
+            cls: 'ge-folder-search-container'
+        });
         this.searchInput = searchContainer.createEl('input', {
             cls: 'ge-folder-search-input',
             attr: {
                 type: 'text',
-                placeholder: t('filter_folders')
+                placeholder: t('filter_folders'),
+                ...(Platform.isMobile && { tabindex: '1' })
             }
         });
 
         // 創建一個容器來存放所有資料夾選項
-        this.folderOptionsContainer = contentEl.createEl('div', { cls: 'ge-folder-options-container' });
+        this.folderOptionsContainer = contentEl.createEl('div', { 
+            cls: 'ge-folder-options-container',
+            attr: Platform.isMobile ? { tabindex: '0' } : {}
+        });
 
         // 搜尋輸入事件處理
         this.searchInput.addEventListener('input', () => {
@@ -181,7 +187,7 @@ export class FolderSelectionModal extends Modal {
         });
 
         // 設置初始焦點到搜尋輸入框
-        this.searchInput.focus();
+        //this.searchInput.focus();
     }
 
     // 處理鍵盤事件

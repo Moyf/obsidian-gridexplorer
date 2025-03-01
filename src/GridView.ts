@@ -22,8 +22,10 @@ export class GridView extends ItemView {
         this.sortType = this.plugin.settings.defaultSortType; // 使用設定中的預設排序模式
         this.searchQuery = ''; // 搜尋關鍵字
         
-        // 註冊檔案變更監聽器
-        this.registerFileWatcher();
+        // 根據設定決定是否註冊檔案變更監聽器
+        if (this.plugin.settings.enableFileWatcher) {
+            this.registerFileWatcher();
+        }
     }
 
     getViewType() {
@@ -424,7 +426,7 @@ export class GridView extends ItemView {
                     if (!contentArea.hasAttribute('data-loaded')) {
                         const content = await this.app.vault.cachedRead(file);
                         const frontMatterInfo = getFrontMatterInfo(content);
-                        const contentWithoutFrontmatter = content.substring(frontMatterInfo.contentStart);
+                        const contentWithoutFrontmatter = content.substring(frontMatterInfo.contentStart).slice(0, 500);
                         const contentWithoutMediaLinks = contentWithoutFrontmatter.replace(/`{3}[\s\S]*?`{3}|<!--[\s\S]*?-->|(!?\[([^\]]*)\]\(([^)]+)\))|!?\[\[([^\]]+)\]\]/g, '');
                         // 只取前100個字符作為預覽
                         const preview = contentWithoutMediaLinks.slice(0, 100) + (contentWithoutMediaLinks.length > 100 ? '...' : '');
@@ -635,6 +637,11 @@ export class GridView extends ItemView {
 
     // 註冊檔案監聽器
     registerFileWatcher() {
+        // 只有在設定啟用時才註冊檔案監聽器
+        if (!this.plugin.settings.enableFileWatcher) {
+            return;
+        }
+        
         this.registerEvent(
             this.app.vault.on('create', (file) => {
                 if (file instanceof TFile && file.extension === 'md') {

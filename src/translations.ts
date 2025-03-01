@@ -68,6 +68,8 @@ export const TRANSLATIONS: Translations = {
         'image_area_width_desc': '設定圖片預覽區域的寬度',
         'image_area_height': '圖片區域高度',
         'image_area_height_desc': '設定圖片預覽區域的高度',
+        'enable_file_watcher': '啟用檔案監控',
+        'enable_file_watcher_desc': '啟用後會自動偵測檔案變更並更新視圖，關閉後需手動點擊重新整理按鈕',
 
         // 選擇資料夾對話框
         'select_folders': '選擇資料夾',
@@ -128,6 +130,8 @@ export const TRANSLATIONS: Translations = {
         'image_area_width_desc': 'Set the width of the image preview area',
         'image_area_height': 'Image area height',
         'image_area_height_desc': 'Set the height of the image preview area',
+        'enable_file_watcher': 'Enable file watcher',
+        'enable_file_watcher_desc': 'When enabled, the view will automatically update when files change. If disabled, you need to click the refresh button manually',
 
         // Folder Selection Dialog
         'select_folders': 'Select folder',
@@ -188,6 +192,8 @@ export const TRANSLATIONS: Translations = {
         'image_area_width_desc': '设置圖片預覽區域的寬度',
         'image_area_height': '圖片區域高度',
         'image_area_height_desc': '设置圖片預覽區域的高度',
+        'enable_file_watcher': '启用文件监控',
+        'enable_file_watcher_desc': '启用后会自动检测文件变更并更新视图，关闭后需手动点击刷新按钮',
 
         // 选择资料夹对话框
         'select_folders': '选择文件夹',
@@ -248,6 +254,8 @@ export const TRANSLATIONS: Translations = {
         'image_area_width_desc': '画像プレビュー領域の幅を設定します',
         'image_area_height': '画像エリア高さ',
         'image_area_height_desc': '画像プレビュー領域の高さを設定します',
+        'enable_file_watcher': 'ファイルウォッチャーを有効にする',
+        'enable_file_watcher_desc': '有効にすると、ファイルの変更を自動的に検知してビューを更新します。無効にすると、手動でリフレッシュボタンをクリックする必要があります',
 
         // フォルダ選択ダイアログ
         'select_folders': 'フォルダを選択',
