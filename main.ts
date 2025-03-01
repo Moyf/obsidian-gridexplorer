@@ -85,5 +85,19 @@ export default class GridExplorerPlugin extends Plugin {
 
     async saveSettings() {
         await this.saveData(this.settings);
+        
+        // 當設定變更時，更新所有開啟的 GridView 實例
+        const leaves = this.app.workspace.getLeavesOfType('grid-view');
+        leaves.forEach(leaf => {
+            if (leaf.view instanceof GridView) {
+                // 如果檔案監控設定已變更，需要重新設定檔案監控
+                if (this.settings.enableFileWatcher) {
+                    leaf.view.registerFileWatcher();
+                }
+                
+                // 重新渲染視圖以套用新設定
+                leaf.view.render();
+            }
+        });
     }
 }
