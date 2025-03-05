@@ -1,10 +1,11 @@
 # GridExplorer
 
-[中文](README_zhTW.md) | English | [日本語](README_ja.md)
+ | English | [日本語](README_ja.md) | [中文](README_zhTW.md)
 
 This is a grid view plugin designed for Obsidian, aimed at providing a more intuitive way to browse and manage your notes and folders.
 
 ![demo1](assets/demo1.jpg)
+![demo2](assets/demo2.jpg)
 
 ## Features
 
@@ -14,7 +15,7 @@ This is a grid view plugin designed for Obsidian, aimed at providing a more intu
 - **Search Results Mode**: Displays Obsidian's search results.
 - **Custom Sorting**: Supports various sorting methods, including by name, modification time, and random sorting.
 - **Settings Options**: Allows customization of grid item width and default sorting method.
-- **Multilingual Support**: Currently supports Traditional Chinese, English, Simplified Chinese, and Japanese.
+- **Multilingual Support**: Currently supports English, Traditional Chinese,  Simplified Chinese, and Japanese.
 
 ## Installation
 
