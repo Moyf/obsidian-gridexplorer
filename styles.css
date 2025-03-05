@@ -55,10 +55,46 @@
 .ge-content-area {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
-.ge-content-area span {
-    margin: 0;
+.ge-title-container {
+    display: flex;
+    align-items: center;
+    gap: 0px;
+    width: 100%;
+}
+
+.ge-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+}
+
+.ge-icon-container.ge-img {
+    color: var(--color-blue);
+}
+
+.ge-icon-container.ge-video {
+    color: var(--color-red);
+}
+
+.ge-icon-container.ge-pdf {
+    color: var(--color-orange);
+}
+
+.ge-icon-container.ge-canvas {
+    color: var(--color-green);
+}
+
+.ge-title {
+    margin: 0 0 0 3px;
     font-size: var(--h5-size);
     color: var(--text-normal);
     overflow: hidden;
@@ -96,22 +132,34 @@
     border-radius: 4px;
 }
 
+.ge-image-area video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
 /* 資料夾項目的特殊樣式 */
 .ge-grid-item.ge-folder-item {
     background-color: var(--background-primary-alt);
     border: 2px solid var(--background-modifier-border);
+    padding: 7px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
 }
 
 .ge-grid-item.ge-folder-item:hover {
     background-color: var(--background-modifier-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.ge-grid-item.ge-folder-item h3 {
-    margin: 0;
+.ge-grid-item.ge-folder-item .ge-icon-container {
+    color: var(--interactive-accent);
+}
+
+.ge-grid-item.ge-folder-item .ge-title {
     color: var(--text-normal);
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
 /* 上層資料夾的特殊樣式 */
@@ -125,9 +173,12 @@
 
 /* 調整資料夾項目的高度 */
 .ge-grid-item.ge-folder-item .ge-content-area {
-    display: flex;
-    align-items: center;
     min-height: 0px;
+    justify-content: center;
+}
+
+.ge-grid-item.ge-folder-item .ge-title-container {
+    align-items: center;
 }
 
 /* 頂部按鈕區域樣式 */
@@ -426,4 +477,172 @@
 
 .ge-ignored-folder-remove:hover {
     background-color: var(--interactive-hover);
+}
+
+/* 影片縮圖樣式 */
+.ge-video-thumbnail {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--background-secondary);
+    border-radius: 4px;
+}
+
+.ge-video-thumbnail svg {
+    width: 40px;
+    height: 40px;
+    color: var(--text-accent);
+}
+
+/* 媒體檔案全螢幕顯示樣式 */
+.ge-media-fullscreen-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ge-media-view {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ge-media-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ge-fullscreen-image {
+    max-width: 100vw;
+    max-height: 100vh;
+    object-fit: contain;
+}
+
+.ge-fullscreen-video {
+    max-width: 100vw;
+    max-height: 100vh;
+}
+
+.ge-media-close-button {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1010;
+}
+
+.ge-media-close-button:hover {
+    background-color: rgba(255, 0, 0, 0.7);
+}
+
+/* 左右切換區域 */
+.ge-media-prev-area,
+.ge-media-next-area {
+    position: absolute;
+    top: 15%;
+    height: 70%;
+    width: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1005;
+    cursor: pointer;
+}
+
+.ge-media-prev-area {
+    left: 0;
+}
+
+.ge-media-next-area {
+    right: 0;
+}
+
+/* MediaModal 樣式 */
+.ge-media-modal {
+    padding: 0 !important;
+    background-color: rgba(0, 0, 0, 0.9) !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+}
+
+.ge-media-modal .modal-header {
+    margin: 0 !important;
+}
+
+.ge-media-modal .modal-close-button {
+    display: none !important;
+}
+
+.ge-media-modal-content {
+    background-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* 媒體 Modal 樣式 */
+.ge-media-modal {
+    padding: 0 !important;
+    background-color: rgba(0, 0, 0, 0.9) !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+}
+
+/* 選中項目的樣式 */
+.ge-selected-item {
+    outline: 1px solid var(--vault-profile-color-hover) !important;
+    outline-offset: -1px;
+    position: relative;
+    z-index: 1;
+}
+
+/* 拖曳相關樣式 */
+.ge-grid-item.ge-dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.ge-folder-item.ge-dragover {
+    background-color: var(--interactive-accent-hover);
+    border: 2px dashed var(--interactive-accent);
+    transform: scale(1.05);
 }
