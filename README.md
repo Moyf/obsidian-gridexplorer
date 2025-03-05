@@ -1,6 +1,6 @@
 # GridExplorer
 
- | English | [日本語](README_ja.md) | [中文](README_zhTW.md)
+English | [日本語](README_ja.md) | [中文](README_zhTW.md)
 
 This is a grid view plugin designed for Obsidian, aimed at providing a more intuitive way to browse and manage your notes and folders.
 
