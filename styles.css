@@ -479,6 +479,16 @@
     background-color: var(--interactive-hover);
 }
 
+/* 忽略資料夾樣式 */
+.ignored-folder-patterns-container {
+    margin-bottom: 16px;
+}
+
+.ge-ignored-folder-patterns-list {
+    list-style: none;
+    padding: 0;
+}
+
 /* 影片縮圖樣式 */
 .ge-video-thumbnail {
     width: 100%;

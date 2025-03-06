@@ -90,11 +90,6 @@ export default class GridExplorerPlugin extends Plugin {
         const leaves = this.app.workspace.getLeavesOfType('grid-view');
         leaves.forEach(leaf => {
             if (leaf.view instanceof GridView) {
-                // 如果檔案監控設定已變更，需要重新設定檔案監控
-                if (this.settings.enableFileWatcher) {
-                    leaf.view.registerFileWatcher();
-                }
-                
                 // 重新渲染視圖以套用新設定
                 leaf.view.render();
             }

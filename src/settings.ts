@@ -1,24 +1,32 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
-import GridExplorerPlugin from '../main';
 import { t } from './translations';
+import GridExplorerPlugin from '../main';
 
 export interface GallerySettings {
     ignoredFolders: string[];
+    ignoredFolderPatterns: string[];
     defaultSortType: string;
     gridItemWidth: number;
     imageAreaWidth: number;
     imageAreaHeight: number;
     enableFileWatcher: boolean;
+    showMediaFiles: boolean;
+    searchMediaFiles: boolean;
+    showVideoThumbnails: boolean;
 }
 
 // 預設設定
 export const DEFAULT_SETTINGS: GallerySettings = {
     ignoredFolders: [],
+    ignoredFolderPatterns: [], // 預設以字串忽略的資料夾模式
     defaultSortType: 'mtime-desc', // 預設排序模式：修改時間倒序
     gridItemWidth: 300, // 網格項目寬度，預設 300
     imageAreaWidth: 100, // 圖片區域寬度，預設 100
     imageAreaHeight: 100, // 圖片區域高度，預設 100
-    enableFileWatcher: true // 預設啟用檔案監控
+    enableFileWatcher: true, // 預設啟用檔案監控
+    showMediaFiles: false, // 預設顯示圖片和影片
+    searchMediaFiles: false, // 預設搜尋時也包含圖片和影片
+    showVideoThumbnails: false // 預設不顯示影片縮圖
 };
 
 // 設定頁面類別
@@ -33,6 +41,58 @@ export class GridExplorerSettingTab extends PluginSettingTab {
     display() {
         const { containerEl } = this;
         containerEl.empty();
+
+        // 媒體檔案設定區域
+        containerEl.createEl('h3', { text: t('media_files_settings') });
+
+        // 顯示圖片和影片設定
+        new Setting(containerEl)
+            .setName(t('show_media_files'))
+            .setDesc(t('show_media_files_desc'))
+            .addToggle(toggle => {
+                toggle
+                    .setValue(this.plugin.settings.showMediaFiles)
+                    .onChange(async (value) => {
+                        this.plugin.settings.showMediaFiles = value;
+                        
+                        // 如果關閉了顯示媒體檔案，也自動關閉搜尋媒體檔案
+                        if (!value) {
+                            this.plugin.settings.searchMediaFiles = false;
+                            // 重新載入設定頁面以更新 UI
+                            this.display();
+                        }
+                        
+                        await this.plugin.saveSettings();
+                    });
+            });
+
+        // 搜尋圖片和影片設定
+        new Setting(containerEl)
+            .setName(t('search_media_files'))
+            .setDesc(t('search_media_files_desc'))
+            .addToggle(toggle => {
+                toggle
+                    .setValue(this.plugin.settings.searchMediaFiles)
+                    .onChange(async (value) => {
+                        this.plugin.settings.searchMediaFiles = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
+
+        // 顯示影片縮圖設定
+        new Setting(containerEl)
+            .setName(t('show_video_thumbnails'))
+            .setDesc(t('show_video_thumbnails_desc'))
+            .addToggle(toggle => {
+                toggle
+                    .setValue(this.plugin.settings.showVideoThumbnails)
+                    .onChange(async (value) => {
+                        this.plugin.settings.showVideoThumbnails = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
+
+        containerEl.createEl('h3', { text: t('grid_view_settings') });
 
         // 預設排序模式設定
         new Setting(containerEl)
@@ -161,6 +221,57 @@ export class GridExplorerSettingTab extends PluginSettingTab {
         this.renderIgnoredFoldersList(ignoredFoldersList);
         
         containerEl.appendChild(ignoredFoldersContainer);
+
+        // 以字串忽略資料夾（可用正則表達式）設定
+        const ignoredFolderPatternsContainer = containerEl.createDiv('ignored-folder-patterns-container');
+        
+        new Setting(containerEl)
+            .setName(t('ignored_folder_patterns'))
+            .setDesc(t('ignored_folder_patterns_desc'))
+            .setHeading();
+        
+        // 新增字串模式輸入框
+        const patternSetting = new Setting(ignoredFolderPatternsContainer)
+            .setName(t('add_ignored_folder_pattern'))
+            .addText(text => {
+                text.setPlaceholder(t('ignored_folder_pattern_placeholder'))
+                    .onChange(() => {
+                        // 僅用於更新輸入值，不進行保存
+                    });
+
+                // 儲存文字輸入元素的引用以便後續使用
+                return text;
+            });
+
+        // 添加按鈕
+        patternSetting.addButton(button => {
+            button
+                .setButtonText(t('add'))
+                .setCta()
+                .onClick(async () => {
+                    // 獲取輸入值
+                    const inputEl = patternSetting.controlEl.querySelector('input') as HTMLInputElement;
+                    const pattern = inputEl.value.trim();
+                    
+                    if (pattern && !this.plugin.settings.ignoredFolderPatterns.includes(pattern)) {
+                        // 新增到忽略模式列表
+                        this.plugin.settings.ignoredFolderPatterns.push(pattern);
+                        await this.plugin.saveSettings();
+                        
+                        // 重新渲染列表
+                        this.renderIgnoredFolderPatternsList(ignoredFolderPatternsList);
+                        
+                        // 清空輸入框
+                        inputEl.value = '';
+                    }
+                });
+        });
+
+        // 顯示目前已忽略的資料夾模式列表
+        const ignoredFolderPatternsList = ignoredFolderPatternsContainer.createDiv('ge-ignored-folder-patterns-list');
+        this.renderIgnoredFolderPatternsList(ignoredFolderPatternsList);
+        
+        containerEl.appendChild(ignoredFolderPatternsContainer);
     }
 
     // 渲染已忽略的資料夾列表
@@ -193,6 +304,39 @@ export class GridExplorerSettingTab extends PluginSettingTab {
                 // 重新渲染列表
                 this.renderIgnoredFoldersList(containerEl);
                 this.display();
+            });
+        });
+    }
+
+    // 渲染已忽略的資料夾模式列表
+    renderIgnoredFolderPatternsList(containerEl: HTMLElement) {
+        containerEl.empty();
+        
+        if (this.plugin.settings.ignoredFolderPatterns.length === 0) {
+            containerEl.createEl('p', { text: t('no_ignored_folder_patterns') });
+            return;
+        }
+        
+        const list = containerEl.createEl('ul', { cls: 'ge-ignored-folders-list' });
+        
+        this.plugin.settings.ignoredFolderPatterns.forEach(pattern => {
+            const item = list.createEl('li', { cls: 'ge-ignored-folder-item' });
+            
+            item.createSpan({ text: pattern, cls: 'ge-ignored-folder-path' });
+            
+            const removeButton = item.createEl('button', { 
+                cls: 'ge-ignored-folder-remove',
+                text: t('remove')
+            });
+            
+            removeButton.addEventListener('click', async () => {
+                // 從忽略模式列表中移除
+                this.plugin.settings.ignoredFolderPatterns = this.plugin.settings.ignoredFolderPatterns
+                    .filter(p => p !== pattern);
+                await this.plugin.saveSettings();
+                
+                // 重新渲染列表
+                this.renderIgnoredFolderPatternsList(containerEl);
             });
         });
     }

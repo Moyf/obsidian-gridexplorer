@@ -1,7 +1,7 @@
 import { App, Modal, Setting, Platform } from 'obsidian';
-import GridExplorerPlugin from '../main';
 import { GridView } from './GridView';
 import { t } from './translations';
+import GridExplorerPlugin from '../main';
 
 // 顯示資料夾選擇 modal
 export function showFolderSelectionModal(app: App, plugin: GridExplorerPlugin, activeView?: GridView) {

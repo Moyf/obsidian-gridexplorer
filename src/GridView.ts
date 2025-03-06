@@ -1,10 +1,12 @@
 import { App, WorkspaceLeaf, ItemView, Modal, TFolder, TFile, Menu, Notice, Setting} from 'obsidian';
 import { setIcon, getFrontMatterInfo } from 'obsidian';
-import GridExplorerPlugin from '../main';
 import { showFolderSelectionModal } from './FolderSelectionModal';
 import { findFirstImageInNote } from './mediaUtils';
 import { MediaModal } from './MediaModal';
+import { showSearchModal } from './SearchModal';
+import { FileWatcher } from './FileWatcher';
 import { t } from './translations';
+import GridExplorerPlugin from '../main';
 
 // 定義網格視圖
 export class GridView extends ItemView {
@@ -17,6 +19,7 @@ export class GridView extends ItemView {
     gridItems: HTMLElement[] = []; // 存儲所有網格項目的引用
     hasKeyboardFocus: boolean = false; // 是否有鍵盤焦點
     keyboardNavigationEnabled: boolean = true; // 是否啟用鍵盤導航
+    fileWatcher: FileWatcher;
 
     constructor(leaf: WorkspaceLeaf, plugin: GridExplorerPlugin) {
         super(leaf);
@@ -29,7 +32,8 @@ export class GridView extends ItemView {
         
         // 根據設定決定是否註冊檔案變更監聽器
         if (this.plugin.settings.enableFileWatcher) {
-            this.registerFileWatcher();
+            this.fileWatcher = new FileWatcher(plugin, this);
+            this.fileWatcher.registerFileWatcher();
         }
 
         // 註冊鍵盤事件處理
@@ -207,11 +211,41 @@ export class GridView extends ItemView {
 
     //忽略檔案
     ignoredFiles(files: TFile[]) {
-        return files.filter(file => 
-            !this.plugin.settings.ignoredFolders.some((folder => 
+        return files.filter(file => {
+            // 檢查是否在忽略的資料夾中
+            const isInIgnoredFolder = this.plugin.settings.ignoredFolders.some(folder => 
                 file.path.startsWith(`${folder}/`)
-            )
-        ));
+            );
+            
+            if (isInIgnoredFolder) {
+                return false;
+            }
+            
+            // 檢查是否符合忽略的資料夾模式
+            if (this.plugin.settings.ignoredFolderPatterns && this.plugin.settings.ignoredFolderPatterns.length > 0) {
+                const matchesIgnoredPattern = this.plugin.settings.ignoredFolderPatterns.some(pattern => {
+                    try {
+                        // 嘗試將模式作為正則表達式處理
+                        // 如果模式包含特殊字符，使用正則表達式處理
+                        if (/[\^\$\*\+\?\(\)\[\]\{\}\|\\]/.test(pattern)) {
+                            const regex = new RegExp(pattern); 
+                            // 檢查檔案路徑是否符合正則表達式
+                            return regex.test(file.path);
+                        } else {
+                            // 如果模式不包含特殊字符，直接檢查檔案路徑
+                            return file.path.toLowerCase().includes(pattern.toLowerCase())
+                        }
+                    } catch (error) {
+                        // 如果正則表達式無效，直接檢查檔案路徑
+                        return file.path.toLowerCase().includes(pattern.toLowerCase())
+                    }
+                });
+                // 如果符合任何忽略模式，則忽略此檔案
+                return !matchesIgnoredPattern;
+            }
+            
+            return true;
+        });
     }
 
     // 判斷是否為媒體檔案
@@ -237,6 +271,23 @@ export class GridView extends ItemView {
 
         // 創建頂部按鈕區域
         const headerButtonsDiv = this.containerEl.createDiv('ge-header-buttons');
+
+        // 為頂部按鈕區域添加右鍵選單事件
+        headerButtonsDiv.addEventListener('contextmenu', (event: MouseEvent) => {
+            event.preventDefault();
+            const menu = new Menu();
+            menu.addItem((item) => {
+                item
+                    .setTitle(t('open_settings'))
+                    .setIcon('settings')
+                    .onClick(() => {
+                        // 打開插件設定頁面
+                        (this.app as any).setting.open();
+                        (this.app as any).setting.openTabById(this.plugin.manifest.id);
+                    });
+            });
+            menu.showAtMouseEvent(event);
+        });
 
         // 添加新增筆記按鈕
         if (this.sourceMode === 'folder' && this.searchQuery === '') {
@@ -408,7 +459,7 @@ export class GridView extends ItemView {
                 this.app.workspace.requestSaveLayout();
             });
 
-            const searchText = searchTextContainer.createEl('span', { text: this.searchQuery, cls: 'ge-search-text' });
+            const searchText = searchTextContainer.createEl('span', { cls: 'ge-search-text', text: this.searchQuery });
             // 讓搜尋文字可點選
             searchText.style.cursor = 'pointer';
             searchText.addEventListener('click', () => {
@@ -464,17 +515,45 @@ export class GridView extends ItemView {
         if (this.sourceMode === 'folder' && this.searchQuery === '') {
             const currentFolder = this.app.vault.getAbstractFileByPath(this.sourcePath || '/');
             if (currentFolder instanceof TFolder) {
-                // 只取得當前資料夾中的 Markdown 檔案，不包含子資料夾
                 const subfolders = currentFolder.children
                     .filter(child => {
                         if (!(child instanceof TFolder)) return false;
+                        
                         // 檢查資料夾是否在忽略清單中
-                        return !this.plugin.settings.ignoredFolders.some(
+                        const isInIgnoredFolders = this.plugin.settings.ignoredFolders.some(
                             ignoredPath => child.path === ignoredPath || child.path.startsWith(ignoredPath + '/')
                         );
+                        
+                        if (isInIgnoredFolders) {
+                            return false;
+                        }
+                        
+                        // 檢查資料夾是否符合忽略的模式
+                        if (this.plugin.settings.ignoredFolderPatterns && this.plugin.settings.ignoredFolderPatterns.length > 0) {
+                            const matchesIgnoredPattern = this.plugin.settings.ignoredFolderPatterns.some(pattern => {
+                                try {
+                                    // 嘗試將模式作為正則表達式處理
+                                    if (/[\^\$\*\+\?\(\)\[\]\{\}\|\\]/.test(pattern)) {
+                                        const regex = new RegExp(pattern);
+                                        return regex.test(child.path);
+                                    } else {
+                                        // 檢查資料夾名稱是否包含模式字串（不區分大小寫）
+                                        return child.name.toLowerCase().includes(pattern.toLowerCase());
+                                    }
+                                } catch (error) {
+                                    // 如果正則表達式無效，直接檢查資料夾名稱
+                                    return child.name.toLowerCase().includes(pattern.toLowerCase());
+                                }
+                            });
+                            
+                            if (matchesIgnoredPattern) {
+                                return false;
+                            }
+                        }
+                        
+                        return true;
                     })
                     .sort((a, b) => a.name.localeCompare(b.name));
-
                 for (const folder of subfolders) {
                     const folderEl = container.createDiv('ge-grid-item ge-folder-item');
                     this.gridItems.push(folderEl); // 添加到網格項目數組
@@ -851,11 +930,28 @@ export class GridView extends ItemView {
 
         switch (event.key) {
             case 'ArrowRight':
+                if (event.altKey) {
+                    // 如果有選中的項目，模擬點擊
+                    if (this.selectedItemIndex >= 0 && this.selectedItemIndex < this.gridItems.length) {
+                        this.gridItems[this.selectedItemIndex].click();
+                    }
+                }  
                 newIndex = Math.min(this.gridItems.length - 1, this.selectedItemIndex + 1);
                 this.hasKeyboardFocus = true;
                 event.preventDefault();
                 break;
             case 'ArrowLeft':
+                if (event.altKey) {
+                    // 如果按下 Alt + 左鍵，且是資料夾模式且不是根目錄
+                    if (this.sourceMode === 'folder' && this.sourcePath && this.sourcePath !== '/') {
+                        // 獲取上一層資料夾路徑
+                        const parentPath = this.sourcePath.split('/').slice(0, -1).join('/') || '/';
+                        this.setSource('folder', parentPath);
+                        this.clearSelection();
+                        event.preventDefault();
+                    }
+                    break;
+                }
                 newIndex = Math.max(0, this.selectedItemIndex - 1);
                 this.hasKeyboardFocus = true;
                 event.preventDefault();
@@ -866,6 +962,17 @@ export class GridView extends ItemView {
                 event.preventDefault();
                 break;
             case 'ArrowUp':
+                if (event.altKey) {
+                    // 如果按下 Alt + 左鍵，且是資料夾模式且不是根目錄
+                    if (this.sourceMode === 'folder' && this.sourcePath && this.sourcePath !== '/') {
+                        // 獲取上一層資料夾路徑
+                        const parentPath = this.sourcePath.split('/').slice(0, -1).join('/') || '/';
+                        this.setSource('folder', parentPath);
+                        this.clearSelection();
+                        event.preventDefault();
+                    }
+                    break;
+                }
                 newIndex = Math.max(0, this.selectedItemIndex - itemsPerRow);
                 this.hasKeyboardFocus = true;
                 event.preventDefault();
@@ -963,103 +1070,7 @@ export class GridView extends ItemView {
 
     // 顯示搜尋 modal
     showSearchModal(defaultQuery = '') {
-        class SearchModal extends Modal {
-            gridView: GridView;
-            defaultQuery: string;
-            constructor(app: App, gridView: GridView, defaultQuery: string) {
-                super(app);
-                this.gridView = gridView;
-                this.defaultQuery = defaultQuery;
-            }
-
-            onOpen() {
-                const { contentEl } = this;
-                contentEl.empty();
-                new Setting(contentEl).setName(t('search')).setHeading();
-
-                // 如果有 GridView 實例，禁用其鍵盤導航
-                if (this.gridView) {
-                    this.gridView.disableKeyboardNavigation();
-                }
-
-                // 創建搜尋輸入框容器
-                const searchContainer = contentEl.createDiv('ge-search-container');
-
-                // 創建搜尋輸入框
-                const searchInput = searchContainer.createEl('input', {
-                    type: 'text',
-                    value: this.defaultQuery,
-                    placeholder: t('search_placeholder')
-                });
-
-                // 創建清空按鈕
-                const clearButton = searchContainer.createDiv('ge-search-clear-button'); //這裡不是用 ge-clear-button
-                clearButton.style.display = this.defaultQuery ? 'flex' : 'none';
-                setIcon(clearButton, 'x');
-
-                // 監聽輸入框變化來控制清空按鈕的顯示
-                searchInput.addEventListener('input', () => {
-                    clearButton.style.display = searchInput.value ? 'flex' : 'none';
-                });
-
-                // 清空按鈕點擊事件
-                clearButton.addEventListener('click', () => {
-                    searchInput.value = '';
-                    clearButton.style.display = 'none';
-                    searchInput.focus();
-                });
-
-                // 創建按鈕容器
-                const buttonContainer = contentEl.createDiv('ge-button-container');
-
-                // 創建搜尋按鈕
-                const searchButton = buttonContainer.createEl('button', {
-                    text: t('search')
-                });
-
-                // 創建取消按鈕
-                const cancelButton = buttonContainer.createEl('button', {
-                    text: t('cancel')
-                });
-
-                // 綁定搜尋事件
-                const performSearch = () => {
-                    this.gridView.searchQuery = searchInput.value;
-                    this.gridView.clearSelection();
-                    this.gridView.render();
-                    // 通知 Obsidian 保存視圖狀態
-                    this.gridView.app.workspace.requestSaveLayout();
-                    this.close();
-                };
-
-                searchButton.addEventListener('click', performSearch);
-                searchInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        performSearch();
-                    }
-                });
-
-                cancelButton.addEventListener('click', () => {
-                    this.close();
-                });
-
-                // 自動聚焦到搜尋輸入框，並將游標移到最後
-                searchInput.focus();
-                searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
-            }
-
-            onClose() {
-                const { contentEl } = this;
-                contentEl.empty();
-
-                // 如果有 GridView 實例，重新啟用其鍵盤導航
-                if (this.gridView) {
-                    this.gridView.enableKeyboardNavigation();
-                }
-            }
-        }
-
-        new SearchModal(this.app, this, defaultQuery).open();
+        showSearchModal(this.app,this, defaultQuery);
     }
 
     // 保存視圖狀態
@@ -1084,70 +1095,6 @@ export class GridView extends ItemView {
             this.searchQuery = state.state.searchQuery || '';
             this.render();
         }
-    }
-
-    // 註冊檔案監聽器
-    registerFileWatcher() {
-        // 只有在設定啟用時才註冊檔案監聽器
-        if (!this.plugin.settings.enableFileWatcher) {
-            return;
-        }
-        
-        this.registerEvent(
-            this.app.vault.on('create', (file) => {
-                if (file instanceof TFile) {
-                    if (this.sourceMode === 'folder' && this.sourcePath && this.searchQuery === '') {
-                        const fileDirPath = file.path.split('/').slice(0, -1).join('/') || '/';
-                        if (fileDirPath === this.sourcePath) {
-                            this.render();
-                        } 
-                    } else {
-                        this.render();
-                    }
-                }
-            })
-        );
-
-        this.registerEvent(
-            this.app.vault.on('delete', (file) => {
-                if (file instanceof TFile) {
-                    if (this.sourceMode === 'folder' && this.sourcePath && this.searchQuery === '') {
-                        const fileDirPath = file.path.split('/').slice(0, -1).join('/') || '/';
-                        if (fileDirPath === this.sourcePath) {
-                            this.render();
-                        } 
-                    } else {
-                        this.render();
-                    }
-                }
-            })
-        );
-
-        //更名及檔案移動
-        this.registerEvent(
-            this.app.vault.on('rename', (file, oldPath) => {
-                if (file instanceof TFile) {
-                    if (this.sourceMode === 'folder' && this.sourcePath && this.searchQuery === '') {
-                        const fileDirPath = file.path.split('/').slice(0, -1).join('/') || '/';
-                        const oldDirPath = oldPath.split('/').slice(0, -1).join('/') || '/';
-                        if (fileDirPath === this.sourcePath || oldDirPath === this.sourcePath) {
-                            this.render();
-                        } 
-                    } else {
-                        this.render();
-                    }
-                }
-            })
-        );
-
-        // 處理書籤變更
-        this.registerEvent(
-            (this.app as any).internalPlugins.plugins.bookmarks.instance.on('changed', () => {
-                if (this.sourceMode === 'bookmarks') {
-                    this.render();
-                }
-            })
-        );
     }
 
     // 禁用鍵盤導航
