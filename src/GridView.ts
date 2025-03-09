@@ -1,4 +1,4 @@
-import { App, WorkspaceLeaf, ItemView, Modal, TFolder, TFile, Menu, Notice, Setting} from 'obsidian';
+import { WorkspaceLeaf, ItemView, TFolder, TFile, Menu, Notice } from 'obsidian';
 import { setIcon, getFrontMatterInfo } from 'obsidian';
 import { showFolderSelectionModal } from './FolderSelectionModal';
 import { findFirstImageInNote } from './mediaUtils';
@@ -15,6 +15,8 @@ export class GridView extends ItemView {
     sourcePath: string;
     sortType: string;
     searchQuery: string;
+    searchAllFiles: boolean;
+    searchType: string;
     selectedItemIndex: number = -1; // 當前選中的項目索引
     gridItems: HTMLElement[] = []; // 存儲所有網格項目的引用
     hasKeyboardFocus: boolean = false; // 是否有鍵盤焦點
@@ -29,6 +31,7 @@ export class GridView extends ItemView {
         this.sourcePath = ''; // 用於資料夾模式的路徑
         this.sortType = this.plugin.settings.defaultSortType; // 使用設定中的預設排序模式
         this.searchQuery = ''; // 搜尋關鍵字
+        this.searchAllFiles = true;
         
         // 根據設定決定是否註冊檔案變更監聽器
         if (this.plugin.settings.enableFileWatcher) {
@@ -322,7 +325,7 @@ export class GridView extends ItemView {
         }
 
         // 添加回上層按鈕（僅在資料夾模式且不在根目錄時顯示）
-        if (this.sourceMode === 'folder' && this.sourcePath !== '/') {
+        if (this.sourceMode === 'folder' && this.sourcePath !== '/' && this.searchQuery === '') {
             const upButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('go_up') } });
             upButton.addEventListener('click', () => {
                 const parentPath = this.sourcePath.split('/').slice(0, -1).join('/') || '/';
@@ -453,6 +456,7 @@ export class GridView extends ItemView {
             clearButton.addEventListener('click', (e) => {
                 e.stopPropagation();  // 防止觸發搜尋文字的點擊事件
                 this.searchQuery = '';
+                this.searchAllFiles = true;
                 this.clearSelection();
                 this.render();
                 // 通知 Obsidian 保存視圖狀態
@@ -493,9 +497,15 @@ export class GridView extends ItemView {
         container.empty();
         container.addClass('ge-grid-container');
         container.style.setProperty('--grid-item-width', this.plugin.settings.gridItemWidth + 'px');
+        if (this.plugin.settings.gridItemHeight === 0) {
+            container.style.setProperty('--grid-item-height', '100%');
+        } else {
+            container.style.setProperty('--grid-item-height', this.plugin.settings.gridItemHeight + 'px');
+        }
         container.style.setProperty('--image-area-width', this.plugin.settings.imageAreaWidth + 'px');
         container.style.setProperty('--image-area-height', this.plugin.settings.imageAreaHeight + 'px');
-
+        container.style.setProperty('--title-font-size', this.plugin.settings.titleFontSize + 'em');
+        
         // 重置網格項目數組
         this.gridItems = [];
 
@@ -550,7 +560,7 @@ export class GridView extends ItemView {
                                 return false;
                             }
                         }
-                        
+
                         return true;
                     })
                     .sort((a, b) => a.name.localeCompare(b.name));
@@ -581,8 +591,13 @@ export class GridView extends ItemView {
             loadingDiv.setText(t('searching'));
             
             // 取得 vault 中所有支援的檔案
-            const allFiles = this.app.vault.getFiles();
-            
+            let allFiles: TFile[] = [];
+            if (this.searchAllFiles) {
+                allFiles = this.app.vault.getFiles();
+            } else {
+                allFiles = await this.getFiles();
+            }
+
             // 根據設定過濾檔案
             const filteredFiles = allFiles.filter(file => {
                 // 非媒體檔案（Markdown、PDF、Canvas）始終包含
@@ -648,14 +663,22 @@ export class GridView extends ItemView {
                     if (!(file instanceof TFile)) return;
 
                     // 載入預覽內容
+                    let imageUrl: string | null = '';
                     const contentArea = fileEl.querySelector('.ge-content-area') as Element;
                     if (!contentArea.hasAttribute('data-loaded')) {
                         // 根據檔案類型處理
                         if (file.extension === 'md') {
+                            let summaryLength = this.plugin.settings.summaryLength;
+                            if (summaryLength < 50) {
+                                summaryLength = 100;
+                                this.plugin.settings.summaryLength = 100;
+                                this.plugin.saveSettings();
+                            }
+
                             // Markdown 檔案顯示內容預覽
                             const content = await this.app.vault.cachedRead(file);
                             const frontMatterInfo = getFrontMatterInfo(content);
-                            const contentWithoutFrontmatter = content.substring(frontMatterInfo.contentStart).slice(0, 500);
+                            const contentWithoutFrontmatter = content.substring(frontMatterInfo.contentStart).slice(0, summaryLength+summaryLength);
                             let contentWithoutMediaLinks = contentWithoutFrontmatter.replace(/```[\s\S]*?```|<!--[\s\S]*?-->|!?(?:\[[^\]]*\]\([^)]+\)|\[\[[^\]]+\]\])/g, '').trim();
 
                             //把開頭的標題整行刪除
@@ -664,10 +687,12 @@ export class GridView extends ItemView {
                             }
                             
                             // 只取前100個字符作為預覽
-                            const preview = contentWithoutMediaLinks.slice(0, 100) + (contentWithoutMediaLinks.length > 100 ? '...' : '');
+                            const preview = contentWithoutMediaLinks.slice(0, summaryLength) + (contentWithoutMediaLinks.length > summaryLength ? '...' : '');
                             
                             // 創建預覽內容
                             const contentEl = contentArea.createEl('p', { text: preview.trim() });
+
+                            imageUrl = await findFirstImageInNote(this.app, content);
                         } else {
                             // 其他檔案顯示副檔名
                             const contentEl = contentArea.createEl('p', { text: file.extension.toUpperCase() });
@@ -700,7 +725,6 @@ export class GridView extends ItemView {
                             imageArea.setAttribute('data-loaded', 'true');
                         } else if (file.extension === 'md') {
                             // Markdown 檔案尋找內部圖片
-                            const imageUrl = await findFirstImageInNote(this.app, file);
                             if (imageUrl) {
                                 const img = imageArea.createEl('img');
                                 img.src = imageUrl;
@@ -1081,7 +1105,8 @@ export class GridView extends ItemView {
                 sourceMode: this.sourceMode,
                 sourcePath: this.sourcePath,
                 sortType: this.sortType,
-                searchQuery: this.searchQuery
+                searchQuery: this.searchQuery,
+                searchAllFiles: this.searchAllFiles
             }
         };
     }
@@ -1093,6 +1118,7 @@ export class GridView extends ItemView {
             this.sourcePath = state.state.sourcePath || null;
             this.sortType = state.state.sortType || 'mtime-desc';
             this.searchQuery = state.state.searchQuery || '';
+            this.searchAllFiles = state.state.searchAllFiles ?? true;
             this.render();
         }
     }

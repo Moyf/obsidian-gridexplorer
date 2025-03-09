@@ -1,10 +1,9 @@
 import { App, TFile } from 'obsidian';
 
 // 尋找筆記中的第一張圖片
-export async function findFirstImageInNote(app: App, file: TFile) {
+export async function findFirstImageInNote(app: App, content: string) {
     try {
-        const content = await app.vault.cachedRead(file);
-        const internalMatch = content.match(/(?:!\[\[(.*?\.(?:jpg|jpeg|png|gif|webp))(?:\|.*?)?\]\]|!\[(.*?)\]\(\s*(\S+?(?:\.(?:jpg|jpeg|png|gif|webp)|format=(?:jpg|jpeg|png|gif|webp))[^\s)]*)\s*(?:\s+["'][^"']*["'])?\s*\))/gi);
+        const internalMatch = content.match(/(?:!\[\[(.*?\.(?:jpg|jpeg|png|gif|webp))(?:\|.*?)?\]\]|!\[(.*?)\]\(\s*(\S+?(?:\.(?:jpg|jpeg|png|gif|webp)|format=(?:jpg|jpeg|png|gif|webp))[^\s)]*)\s*(?:\s+["'][^"']*["'])?\s*\))/i);
         if (internalMatch) {
             return processMediaLink(app, internalMatch[0]);
         } else {    

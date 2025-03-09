@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
 import { t } from './translations';
 import GridExplorerPlugin from '../main';
 
@@ -7,8 +7,11 @@ export interface GallerySettings {
     ignoredFolderPatterns: string[];
     defaultSortType: string;
     gridItemWidth: number;
+    gridItemHeight: number;
     imageAreaWidth: number;
     imageAreaHeight: number;
+    titleFontSize: number;
+    summaryLength: number;
     enableFileWatcher: boolean;
     showMediaFiles: boolean;
     searchMediaFiles: boolean;
@@ -21,8 +24,11 @@ export const DEFAULT_SETTINGS: GallerySettings = {
     ignoredFolderPatterns: [], // 預設以字串忽略的資料夾模式
     defaultSortType: 'mtime-desc', // 預設排序模式：修改時間倒序
     gridItemWidth: 300, // 網格項目寬度，預設 300
+    gridItemHeight: 0, // 網格項目高度，預設 0
     imageAreaWidth: 100, // 圖片區域寬度，預設 100
     imageAreaHeight: 100, // 圖片區域高度，預設 100
+    titleFontSize: 1.1, // 筆記標題的字型大小，預設 1.1
+    summaryLength: 100, // 筆記摘要的字數，預設 100
     enableFileWatcher: true, // 預設啟用檔案監控
     showMediaFiles: false, // 預設顯示圖片和影片
     searchMediaFiles: false, // 預設搜尋時也包含圖片和影片
@@ -41,6 +47,19 @@ export class GridExplorerSettingTab extends PluginSettingTab {
     display() {
         const { containerEl } = this;
         containerEl.empty();
+
+        // 回復預設值按鈕
+        new Setting(containerEl)
+            .setName(t('reset_to_default'))
+            .setDesc(t('reset_to_default_desc'))
+            .addButton(button => button
+                .setButtonText(t('reset'))
+                .onClick(async () => {
+                    this.plugin.settings = { ...DEFAULT_SETTINGS };
+                    await this.plugin.saveSettings();
+                    this.display();
+                    new Notice(t('settings_reset_notice'));
+                }));
 
         // 媒體檔案設定區域
         containerEl.createEl('h3', { text: t('media_files_settings') });
@@ -133,11 +152,26 @@ export class GridExplorerSettingTab extends PluginSettingTab {
             .setDesc(t('grid_item_width_desc'))
             .addSlider(slider => {
                 slider
-                    .setLimits(200, 600, 50)
+                    .setLimits(200, 600, 10)
                     .setValue(this.plugin.settings.gridItemWidth)
                     .setDynamicTooltip()
                     .onChange(async (value) => {
                         this.plugin.settings.gridItemWidth = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
+
+        // 網格項目高度設定
+        new Setting(containerEl)
+            .setName(t('grid_item_height'))
+            .setDesc(t('grid_item_height_desc'))
+            .addSlider(slider => {
+                slider
+                    .setLimits(0, 600, 10)
+                    .setValue(this.plugin.settings.gridItemHeight)
+                    .setDynamicTooltip()
+                    .onChange(async (value) => {
+                        this.plugin.settings.gridItemHeight = value;
                         await this.plugin.saveSettings();
                     });
             });
@@ -172,6 +206,37 @@ export class GridExplorerSettingTab extends PluginSettingTab {
                     });
             });
         
+        //筆記標題的字型大小
+        new Setting(containerEl)
+            .setName(t('title_font_size'))
+            .setDesc(t('title_font_size_desc'))
+            .addSlider(slider => {
+                slider
+                .setLimits(1, 1.5, 0.05)
+                .setValue(this.plugin.settings.titleFontSize)
+                .setDynamicTooltip()
+                .onChange(async (value) => {
+                    this.plugin.settings.titleFontSize = value;
+                    await this.plugin.saveSettings();
+                });
+            });
+        
+                
+        // 筆記摘要的字數設定
+        new Setting(containerEl)
+            .setName(t('summary_length'))
+            .setDesc(t('summary_length_desc'))
+            .addSlider(slider => {
+                slider
+                    .setLimits(50, 600, 50)
+                    .setValue(this.plugin.settings.summaryLength)
+                    .setDynamicTooltip()
+                    .onChange(async (value) => {
+                        this.plugin.settings.summaryLength = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
+
         // 忽略的資料夾設定
         const ignoredFoldersContainer = containerEl.createDiv('ignored-folders-container');
         

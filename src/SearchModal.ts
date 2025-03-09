@@ -49,6 +49,31 @@ export class SearchModal extends Modal {
             searchInput.focus();
         });
 
+        // 創建搜尋範圍設定
+        const searchScopeContainer = contentEl.createDiv('ge-search-scope-container');
+        const searchScopeCheckbox = searchScopeContainer.createEl('input', {
+            type: 'checkbox',
+            cls: 'ge-search-scope-checkbox'
+        });
+        searchScopeCheckbox.checked = !this.gridView.searchAllFiles;
+        const searchScopeLabel = searchScopeContainer.createEl('span', {
+            text: t('search_current_location_only'),
+            cls: 'ge-search-scope-label'
+        });
+
+        // 點擊容器時切換勾選框狀態
+        searchScopeContainer.addEventListener('click', (e) => {
+            if (e.target !== searchScopeCheckbox) {
+                searchScopeCheckbox.checked = !searchScopeCheckbox.checked;
+                this.gridView.searchAllFiles = !searchScopeCheckbox.checked;
+            }
+        });
+
+        // 勾選框變更時更新搜尋範圍
+        searchScopeCheckbox.addEventListener('change', () => {
+            this.gridView.searchAllFiles = !searchScopeCheckbox.checked;
+        });
+
         // 創建按鈕容器
         const buttonContainer = contentEl.createDiv('ge-button-container');
 
@@ -65,6 +90,7 @@ export class SearchModal extends Modal {
         // 綁定搜尋事件
         const performSearch = () => {
             this.gridView.searchQuery = searchInput.value;
+            this.gridView.searchAllFiles = !searchScopeCheckbox.checked;
             this.gridView.clearSelection();
             this.gridView.render();
             // 通知 Obsidian 保存視圖狀態

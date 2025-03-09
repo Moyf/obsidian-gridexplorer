@@ -43,7 +43,7 @@
     transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     gap: 14px;
-    height: 100%;
+    height: var(--grid-item-height);
 }
 
 .ge-grid-item:hover {
@@ -95,7 +95,7 @@
 
 .ge-title {
     margin: 0 0 0 3px;
-    font-size: var(--h5-size);
+    font-size: var(--title-font-size);
     color: var(--text-normal);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -113,6 +113,7 @@
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+    height: 100%;
 }
 
 .ge-content-area p:empty {
@@ -146,6 +147,7 @@
     padding: 7px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     transition: all 0.2s ease;
+    height: 100%;
 }
 
 .ge-grid-item.ge-folder-item:hover {
@@ -230,7 +232,7 @@
 
 /* 搜尋對話框樣式 */
 .ge-search-container {
-    margin-bottom: 16px;
+    margin-bottom: 8px;
     position: relative;
     display: flex;
     align-items: center;
@@ -255,6 +257,25 @@
 
 .ge-search-container input::placeholder {
     color: var(--text-muted);
+}
+
+/* 搜尋範圍設定樣式 */
+.ge-search-scope-container {
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.ge-search-scope-checkbox {
+    cursor: pointer;
+}
+
+.ge-search-scope-label {
+    cursor: pointer;
+    user-select: none;
+    color: var(--text-normal);
 }
 
 .ge-button-container {
@@ -656,3 +677,4 @@
     border: 2px dashed var(--interactive-accent);
     transform: scale(1.05);
 }
+

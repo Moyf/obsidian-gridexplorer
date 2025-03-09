@@ -20,6 +20,7 @@ export class FileWatcher {
             return;
         }
     
+        //新增檔案
         this.plugin.registerEvent(
             this.app.vault.on('create', (file) => {
                 if (file instanceof TFile) {
@@ -35,6 +36,7 @@ export class FileWatcher {
             })
         );
     
+        //刪除檔案
         this.plugin.registerEvent(
             this.app.vault.on('delete', (file) => {
                 if (file instanceof TFile) {
