@@ -212,7 +212,7 @@ export class GridExplorerSettingTab extends PluginSettingTab {
             .setDesc(t('title_font_size_desc'))
             .addSlider(slider => {
                 slider
-                .setLimits(1, 1.5, 0.05)
+                .setLimits(0.8, 1.5, 0.05)
                 .setValue(this.plugin.settings.titleFontSize)
                 .setDynamicTooltip()
                 .onChange(async (value) => {

@@ -394,6 +394,9 @@ export class GridView extends ItemView {
         // 添加重新整理按鈕
         const refreshButton = headerButtonsDiv.createEl('button', { attr: { 'aria-label': t('refresh') }  });
         refreshButton.addEventListener('click', () => {
+            if (this.sortType === 'random') {
+                this.clearSelection();
+            }
             this.render();
         });
         setIcon(refreshButton, 'refresh-ccw');
@@ -450,6 +453,14 @@ export class GridView extends ItemView {
             searchButton.style.display = 'none';
             const searchTextContainer = searchButtonContainer.createDiv('ge-search-text-container');
 
+            // 創建搜尋文字
+            const searchText = searchTextContainer.createEl('span', { cls: 'ge-search-text', text: this.searchQuery });
+            // 讓搜尋文字可點選
+            searchText.style.cursor = 'pointer';
+            searchText.addEventListener('click', () => {
+                this.showSearchModal(this.searchQuery);
+            });
+
             // 創建取消按鈕
             const clearButton = searchTextContainer.createDiv('ge-clear-button');
             setIcon(clearButton, 'x');
@@ -461,13 +472,6 @@ export class GridView extends ItemView {
                 this.render();
                 // 通知 Obsidian 保存視圖狀態
                 this.app.workspace.requestSaveLayout();
-            });
-
-            const searchText = searchTextContainer.createEl('span', { cls: 'ge-search-text', text: this.searchQuery });
-            // 讓搜尋文字可點選
-            searchText.style.cursor = 'pointer';
-            searchText.addEventListener('click', () => {
-                this.showSearchModal(this.searchQuery);
             });
         }
 
@@ -784,7 +788,8 @@ export class GridView extends ItemView {
             
             // 創建標題（立即載入）
             const titleEl = titleContainer.createEl('span', { cls: 'ge-title', text: file.basename });
-
+            titleEl.setAttribute('title', file.basename);
+            
             // 創建圖片區域，但先不載入圖片
             const imageArea = fileEl.createDiv('ge-image-area');
             

@@ -337,8 +337,10 @@
 /* 搜尋文字容器 */
 .ge-search-text-container {
     position: relative;
-    display: inline-block;
-    max-width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -355,18 +357,17 @@
 /* 搜尋文字 */
 .ge-search-text {
     font-size: 14px;
-    color: var(--text-normal);   
-    padding: 8px 10px;
-    padding-left: 28px;  /* 為取消按鈕留出空間 */
-    align-items: center;
+    color: var(--text-normal);
+    flex-grow: 1; /* 讓文字填滿剩餘空間 */
+    min-width: 0; /* 防止内容溢出 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-left: 8px;
 }
 
 /* 取消按鈕 */
 .ge-clear-button {
-    position: absolute;
-    left: 4px;
-    top: 50%;
-    transform: translateY(-50%);
     width: 22px;
     height: 22px;
     display: flex;
@@ -376,6 +377,8 @@
     cursor: pointer;
     color: var(--text-muted);
     font-size: 14px;
+    margin-right:4px; /* 添加右边距 */
+    flex-shrink: 0; /* 防止被压缩*/
 }
 
 .ge-clear-button:hover {

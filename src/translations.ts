@@ -21,7 +21,7 @@ export function t(key: string): string {
 export const TRANSLATIONS: Translations = {
     'zh-TW': {
         // 通知訊息
-        'bookmarks_plugin_disabled': '請先啟用書籤插件',
+        'bookmarks_plugin_disabled': '請先啟用書籤外掛',
 
         // 按鈕和標籤
         'sorting': '排序方式',

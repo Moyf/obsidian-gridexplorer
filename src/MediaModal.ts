@@ -185,12 +185,7 @@ export class MediaModal extends Modal {
             video.className = 'ge-fullscreen-video';
             video.controls = true;
             video.autoplay = true;
-            
-            const source = document.createElement('source');
-            source.src = this.app.vault.getResourcePath(mediaFile);
-            source.type = `video/${mediaFile.extension === 'mov' ? 'quicktime' : mediaFile.extension}`;
-            
-            video.appendChild(source);
+            video.src = this.app.vault.getResourcePath(mediaFile);
             mediaContainer.appendChild(video);
             this.currentMediaElement = video;
         }
