@@ -1,4 +1,4 @@
-import { TFile, App } from 'obsidian';
+import { App, TFile } from 'obsidian';
 import GridExplorerPlugin from '../main';
 import { GridView } from './GridView';
 

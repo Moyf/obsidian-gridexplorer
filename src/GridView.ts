@@ -1,4 +1,4 @@
-import { WorkspaceLeaf, ItemView, TFolder, TFile, Menu, Notice } from 'obsidian';
+import { WorkspaceLeaf, ItemView, TFolder, TFile, Menu, Notice, Platform } from 'obsidian';
 import { setIcon, getFrontMatterInfo } from 'obsidian';
 import { showFolderSelectionModal } from './FolderSelectionModal';
 import { findFirstImageInNote } from './mediaUtils';
@@ -334,54 +334,56 @@ export class GridView extends ItemView {
             });
             setIcon(upButton, 'arrow-up');
 
-            // 為上層按鈕添加拖曳目標功能
-            upButton.addEventListener('dragover', (event) => {
-                // 防止預設行為以允許放置
-                event.preventDefault();
-                // 設定拖曳效果為移動
-                event.dataTransfer!.dropEffect = 'move';
-                // 顯示可放置的視覺提示
-                upButton.addClass('ge-dragover');
-            });
-            
-            upButton.addEventListener('dragleave', () => {
-                // 移除視覺提示
-                upButton.removeClass('ge-dragover');
-            });
-            
-            upButton.addEventListener('drop', async (event) => {
-                // 防止預設行為
-                event.preventDefault();
-                // 移除視覺提示
-                upButton.removeClass('ge-dragover');
+            if(Platform.isDesktop) {
+                // 為上層按鈕添加拖曳目標功能
+                upButton.addEventListener('dragover', (event) => {
+                    // 防止預設行為以允許放置
+                    event.preventDefault();
+                    // 設定拖曳效果為移動
+                    event.dataTransfer!.dropEffect = 'move';
+                    // 顯示可放置的視覺提示
+                    upButton.addClass('ge-dragover');
+                });
                 
-                // 獲取拖曳的檔案路徑
-                const filePath = (event as any).dataTransfer?.getData('text/plain');
-                if (!filePath) return;
+                upButton.addEventListener('dragleave', () => {
+                    // 移除視覺提示
+                    upButton.removeClass('ge-dragover');
+                });
                 
-                const cleanedFilePath = filePath.replace(/!?\[\[(.*?)\]\]/, '$1');
-                
-                // 獲取上一層資料夾路徑
-                const parentPath = this.sourcePath.split('/').slice(0, -1).join('/') || '/';
-                if (!parentPath) return;
-                
-                // 獲取檔案和資料夾物件
-                const file = this.app.vault.getAbstractFileByPath(cleanedFilePath);
-                const folder = this.app.vault.getAbstractFileByPath(parentPath);
-                
-                if (file instanceof TFile && folder instanceof TFolder) {
-                    try {
-                        // 計算新的檔案路徑
-                        const newPath = `${parentPath}/${file.name}`;
-                        // 移動檔案
-                        await this.app.fileManager.renameFile(file, newPath);
-                        // 重新渲染視圖
-                        this.render();
-                    } catch (error) {
-                        console.error('An error occurred while moving the file to parent folder:', error);
+                upButton.addEventListener('drop', async (event) => {
+                    // 防止預設行為
+                    event.preventDefault();
+                    // 移除視覺提示
+                    upButton.removeClass('ge-dragover');
+                    
+                    // 獲取拖曳的檔案路徑
+                    const filePath = (event as any).dataTransfer?.getData('text/plain');
+                    if (!filePath) return;
+                    
+                    const cleanedFilePath = filePath.replace(/!?\[\[(.*?)\]\]/, '$1');
+                    
+                    // 獲取上一層資料夾路徑
+                    const parentPath = this.sourcePath.split('/').slice(0, -1).join('/') || '/';
+                    if (!parentPath) return;
+                    
+                    // 獲取檔案和資料夾物件
+                    const file = this.app.vault.getAbstractFileByPath(cleanedFilePath);
+                    const folder = this.app.vault.getAbstractFileByPath(parentPath);
+                    
+                    if (file instanceof TFile && folder instanceof TFolder) {
+                        try {
+                            // 計算新的檔案路徑
+                            const newPath = `${parentPath}/${file.name}`;
+                            // 移動檔案
+                            await this.app.fileManager.renameFile(file, newPath);
+                            // 重新渲染視圖
+                            this.render();
+                        } catch (error) {
+                            console.error('An error occurred while moving the file to parent folder:', error);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         // 添加重新選擇資料夾按鈕
@@ -682,7 +684,12 @@ export class GridView extends ItemView {
                             // Markdown 檔案顯示內容預覽
                             const content = await this.app.vault.cachedRead(file);
                             const frontMatterInfo = getFrontMatterInfo(content);
-                            const contentWithoutFrontmatter = content.substring(frontMatterInfo.contentStart).slice(0, summaryLength+summaryLength);
+                            let contentWithoutFrontmatter = '';
+                            if (summaryLength < 500) {
+                                contentWithoutFrontmatter = content.substring(frontMatterInfo.contentStart).slice(0, 500);
+                            } else {
+                                contentWithoutFrontmatter = content.substring(frontMatterInfo.contentStart).slice(0, summaryLength + summaryLength);
+                            }
                             let contentWithoutMediaLinks = contentWithoutFrontmatter.replace(/```[\s\S]*?```|<!--[\s\S]*?-->|!?(?:\[[^\]]*\]\([^)]+\)|\[\[[^\]]+\]\])/g, '').trim();
 
                             //把開頭的標題整行刪除
@@ -690,7 +697,7 @@ export class GridView extends ItemView {
                                 contentWithoutMediaLinks = contentWithoutMediaLinks.split('\n').slice(1).join('\n');
                             }
                             
-                            // 只取前100個字符作為預覽
+                            // 只取前 summaryLength 個字符作為預覽
                             const preview = contentWithoutMediaLinks.slice(0, summaryLength) + (contentWithoutMediaLinks.length > summaryLength ? '...' : '');
                             
                             // 創建預覽內容
@@ -819,26 +826,28 @@ export class GridView extends ItemView {
                 }
             });
             
-            // 添加拖曳功能
-            fileEl.setAttribute('draggable', 'true');
-            fileEl.addEventListener('dragstart', (event) => {
-                const isMedia = this.isMediaFile(file);
-                const mdLink = isMedia
-                    ? `![[${file.path}]]` // 媒體檔案使用 ![[]] 格式
-                    : `[[${file.path}]]`;  // 一般檔案使用 [[]] 格式
+            if(Platform.isDesktop) {
+                // 添加拖曳功能
+                fileEl.setAttribute('draggable', 'true');
+                fileEl.addEventListener('dragstart', (event) => {
+                    const isMedia = this.isMediaFile(file);
+                    const mdLink = isMedia
+                        ? `![[${file.path}]]` // 媒體檔案使用 ![[]] 格式
+                        : `[[${file.path}]]`;  // 一般檔案使用 [[]] 格式
 
-                // 設定拖曳資料
-                event.dataTransfer?.setData('text/plain', mdLink);
-                // 設定拖曳效果
-                event.dataTransfer!.effectAllowed = 'all';
-                // 添加拖曳中的視覺效果
-                fileEl.addClass('ge-dragging');
-            });
-            
-            fileEl.addEventListener('dragend', () => {
-                // 移除拖曳中的視覺效果
-                fileEl.removeClass('ge-dragging');
-            });
+                    // 設定拖曳資料
+                    event.dataTransfer?.setData('text/plain', mdLink);
+                    // 設定拖曳效果
+                    event.dataTransfer!.effectAllowed = 'all';
+                    // 添加拖曳中的視覺效果
+                    fileEl.addClass('ge-dragging');
+                });
+                
+                fileEl.addEventListener('dragend', () => {
+                    // 移除拖曳中的視覺效果
+                    fileEl.removeClass('ge-dragging');
+                });
+            }
             
             // 添加右鍵選單
             fileEl.addEventListener('contextmenu', (event) => {
@@ -870,57 +879,59 @@ export class GridView extends ItemView {
             });
         }
 
-        // 為資料夾項目添加拖曳目標功能
-        const folderItems = this.containerEl.querySelectorAll('.ge-folder-item');
-        folderItems.forEach(folderItem => {
-            folderItem.addEventListener('dragover', (event) => {
-                // 防止預設行為以允許放置
-                event.preventDefault();
-                // 設定拖曳效果為移動
-                (event as any).dataTransfer!.dropEffect = 'move';
-                // 顯示可放置的視覺提示
-                folderItem.addClass('ge-dragover');
-            });
-            
-            folderItem.addEventListener('dragleave', () => {
-                // 移除視覺提示
-                folderItem.removeClass('ge-dragover');
-            });
-            
-            folderItem.addEventListener('drop', async (event) => {
-                // 防止預設行為
-                event.preventDefault();
-                // 移除視覺提示
-                folderItem.removeClass('ge-dragover');
+        if(Platform.isDesktop) {
+            // 為資料夾項目添加拖曳目標功能
+            const folderItems = this.containerEl.querySelectorAll('.ge-folder-item');
+            folderItems.forEach(folderItem => {
+                folderItem.addEventListener('dragover', (event) => {
+                    // 防止預設行為以允許放置
+                    event.preventDefault();
+                    // 設定拖曳效果為移動
+                    (event as any).dataTransfer!.dropEffect = 'move';
+                    // 顯示可放置的視覺提示
+                    folderItem.addClass('ge-dragover');
+                });
                 
-                // 獲取拖曳的檔案路徑
-                const filePath = (event as any).dataTransfer?.getData('text/plain');
-                if (!filePath) return;
+                folderItem.addEventListener('dragleave', () => {
+                    // 移除視覺提示
+                    folderItem.removeClass('ge-dragover');
+                });
                 
-                const cleanedFilePath = filePath.replace(/!?\[\[(.*?)\]\]/, '$1');
+                folderItem.addEventListener('drop', async (event) => {
+                    // 防止預設行為
+                    event.preventDefault();
+                    // 移除視覺提示
+                    folderItem.removeClass('ge-dragover');
+                    
+                    // 獲取拖曳的檔案路徑
+                    const filePath = (event as any).dataTransfer?.getData('text/plain');
+                    if (!filePath) return;
+                    
+                    const cleanedFilePath = filePath.replace(/!?\[\[(.*?)\]\]/, '$1');
 
-                // 獲取目標資料夾路徑
-                const folderPath = (folderItem as any).dataset.folderPath;
-                if (!folderPath) return;
-                
-                // 獲取檔案和資料夾物件
-                const file = this.app.vault.getAbstractFileByPath(cleanedFilePath);
-                const folder = this.app.vault.getAbstractFileByPath(folderPath);
-                
-                if (file instanceof TFile && folder instanceof TFolder) {
-                    try {
-                        // 計算新的檔案路徑
-                        const newPath = `${folderPath}/${file.name}`;
-                        // 移動檔案
-                        await this.app.fileManager.renameFile(file, newPath);
-                        // 重新渲染視圖
-                        this.render();
-                    } catch (error) {
-                        console.error('An error occurred while moving the file:', error);
+                    // 獲取目標資料夾路徑
+                    const folderPath = (folderItem as any).dataset.folderPath;
+                    if (!folderPath) return;
+                    
+                    // 獲取檔案和資料夾物件
+                    const file = this.app.vault.getAbstractFileByPath(cleanedFilePath);
+                    const folder = this.app.vault.getAbstractFileByPath(folderPath);
+                    
+                    if (file instanceof TFile && folder instanceof TFolder) {
+                        try {
+                            // 計算新的檔案路徑
+                            const newPath = `${folderPath}/${file.name}`;
+                            // 移動檔案
+                            await this.app.fileManager.renameFile(file, newPath);
+                            // 重新渲染視圖
+                            this.render();
+                        } catch (error) {
+                            console.error('An error occurred while moving the file:', error);
+                        }
                     }
-                }
+                });
             });
-        });
+        }
 
         // 如果有選中的項目，恢復選中狀態
         if (this.selectedItemIndex >= 0 && this.selectedItemIndex < this.gridItems.length && this.hasKeyboardFocus) {

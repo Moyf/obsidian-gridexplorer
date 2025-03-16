@@ -16,6 +16,7 @@ export interface GallerySettings {
     showMediaFiles: boolean;
     searchMediaFiles: boolean;
     showVideoThumbnails: boolean;
+    defaultOpenLocation: string; // 預設開啟位置
 }
 
 // 預設設定
@@ -30,9 +31,10 @@ export const DEFAULT_SETTINGS: GallerySettings = {
     titleFontSize: 1.1, // 筆記標題的字型大小，預設 1.1
     summaryLength: 100, // 筆記摘要的字數，預設 100
     enableFileWatcher: true, // 預設啟用檔案監控
-    showMediaFiles: false, // 預設顯示圖片和影片
+    showMediaFiles: true, // 預設顯示圖片和影片
     searchMediaFiles: false, // 預設搜尋時也包含圖片和影片
-    showVideoThumbnails: false // 預設不顯示影片縮圖
+    showVideoThumbnails: false, // 預設不顯示影片縮圖
+    defaultOpenLocation: 'tab' // 預設開啟位置：新分頁
 };
 
 // 設定頁面類別
@@ -112,6 +114,22 @@ export class GridExplorerSettingTab extends PluginSettingTab {
             });
 
         containerEl.createEl('h3', { text: t('grid_view_settings') });
+
+        // 預設開啟位置設定
+        new Setting(containerEl)
+            .setName(t('default_open_location'))
+            .setDesc(t('default_open_location_desc'))
+            .addDropdown(dropdown => {
+                dropdown
+                    .addOption('tab', t('open_in_new_tab'))
+                    .addOption('left', t('open_in_left_sidebar'))
+                    .addOption('right', t('open_in_right_sidebar'))
+                    .setValue(this.plugin.settings.defaultOpenLocation)
+                    .onChange(async (value) => {
+                        this.plugin.settings.defaultOpenLocation = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
 
         // 預設排序模式設定
         new Setting(containerEl)
@@ -228,7 +246,7 @@ export class GridExplorerSettingTab extends PluginSettingTab {
             .setDesc(t('summary_length_desc'))
             .addSlider(slider => {
                 slider
-                    .setLimits(50, 600, 50)
+                    .setLimits(50, 600, 25)
                     .setValue(this.plugin.settings.summaryLength)
                     .setDynamicTooltip()
                     .onChange(async (value) => {

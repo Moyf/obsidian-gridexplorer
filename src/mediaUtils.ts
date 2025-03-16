@@ -3,7 +3,7 @@ import { App, TFile } from 'obsidian';
 // 尋找筆記中的第一張圖片
 export async function findFirstImageInNote(app: App, content: string) {
     try {
-        const internalMatch = content.match(/(?:!\[\[(.*?\.(?:jpg|jpeg|png|gif|webp))(?:\|.*?)?\]\]|!\[(.*?)\]\(\s*(\S+?(?:\.(?:jpg|jpeg|png|gif|webp)|format=(?:jpg|jpeg|png|gif|webp))[^\s)]*)\s*(?:\s+["'][^"']*["'])?\s*\))/i);
+        const internalMatch = content.match(/(?:!?\[\[(.*?\.(?:jpg|jpeg|png|gif|webp))(?:\|.*?)?\]\]|!\[(.*?)\]\(\s*(\S+?(?:\.(?:jpg|jpeg|png|gif|webp)|format=(?:jpg|jpeg|png|gif|webp))[^\s)]*)\s*(?:\s+["'][^"']*["'])?\s*\))/i);
         if (internalMatch) {
             return processMediaLink(app, internalMatch[0]);
         } else {    
@@ -18,7 +18,7 @@ export async function findFirstImageInNote(app: App, content: string) {
 // 處理媒體連結
 function processMediaLink(app: App, linkText: string) {
     // 處理 Obsidian 內部連結 ![[file]]
-    const internalMatch = linkText.match(/!\[\[(.*?)\]\]/);
+    const internalMatch = linkText.match(/!?\[\[(.*?)\]\]/);
     if (internalMatch) {
         const file = app.metadataCache.getFirstLinkpathDest(internalMatch[1], '');
         if (file) {
@@ -27,7 +27,7 @@ function processMediaLink(app: App, linkText: string) {
     }
 
     // 處理標準 Markdown 連結 ![alt](path)
-    const markdownMatch = linkText.match(/!\[(.*?)\]\((.*?)\)/);
+    const markdownMatch = linkText.match(/!?\[(.*?)\]\((.*?)\)/);
     if (markdownMatch) {
         const url = markdownMatch[2].split(' "')[0];
         if (url.startsWith('http')) {
