@@ -119,7 +119,10 @@ export class GridExplorerSettingTab extends PluginSettingTab {
                     });
             });
 
-        containerEl.createEl('h3', { text: t('grid_view_settings') });
+        containerEl.createEl('h2', { text: t('grid_view_settings') });
+
+        // 網格外觀設定
+        containerEl.createEl('h3', { text: t('grid_appearance') });
 
         // 預設開啟位置設定
         new Setting(containerEl)
@@ -270,6 +273,9 @@ export class GridExplorerSettingTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.showParentFolderItem)
                     .onChange(async (value) => {
                         this.plugin.settings.showParentFolderItem = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
 
         // 摘要过滤设置区域
         containerEl.createEl('h3', { text: t('summary_filter_settings') });
