@@ -97,7 +97,7 @@ export const TRANSLATIONS: Translations = {
         // 顯示"返回上级文件夹"選項設定
         'show_parent_folder_item': '顯示「返回上級資料夾」',
         'show_parent_folder_item_desc': '在網格的第一項顯示「返回上級資料夾」選項',
-        'parent_folder': '返回上級資料夾',
+        'parent_folder': '上級資料夾',
         
         // 預設開啟位置設定
         'default_open_location': '預設開啟位置',
@@ -293,7 +293,7 @@ export const TRANSLATIONS: Translations = {
         // 显示"返回上级文件夹"选项设置
         'show_parent_folder_item': '显示「返回上级文件夹」',
         'show_parent_folder_item_desc': '在网格的第一项显示「返回上级文件夹」选项',
-        'parent_folder': '返回上级文件夹',
+        'parent_folder': '上级文件夹',
         
         // 默认打开位置设置
         'default_open_location': '默认打开位置',
