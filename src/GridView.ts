@@ -527,6 +527,66 @@ export class GridView extends ItemView {
             return;
         }
 
+        // 如果是資料夾模式，且不是在搜索状态，且设置中启用了显示"返回上级文件夹"选项，且不是根目录
+        if (this.sourceMode === 'folder' && this.searchQuery === '' && 
+            this.plugin.settings.showParentFolderItem && this.sourcePath !== '/') {
+            // 创建"返回上级文件夹"项目
+            const parentFolderEl = container.createDiv('ge-grid-item ge-folder-item ge-parent-folder-item');
+            this.gridItems.push(parentFolderEl); // 添加到網格項目數組
+            
+            // 获取父文件夹路径
+            const parentPath = this.sourcePath.split('/').slice(0, -1).join('/') || '/';
+            
+            // 设置文件夹路径属性
+            parentFolderEl.dataset.folderPath = parentPath;
+            
+            const contentArea = parentFolderEl.createDiv('ge-content-area');
+            const titleContainer = contentArea.createDiv('ge-title-container');
+            const titleEl = titleContainer.createEl('span', { cls: 'ge-title', text: `📁 ${t('parent_folder')} (..)` });
+            
+            // 点击事件 - 返回上级文件夹
+            parentFolderEl.addEventListener('click', () => {
+                this.setSource('folder', parentPath);
+                this.clearSelection();
+            });
+            
+            // 添加拖拽目标功能
+            if(Platform.isDesktop) {
+                parentFolderEl.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    event.dataTransfer!.dropEffect = 'move';
+                    parentFolderEl.addClass('ge-dragover');
+                });
+                
+                parentFolderEl.addEventListener('dragleave', () => {
+                    parentFolderEl.removeClass('ge-dragover');
+                });
+                
+                parentFolderEl.addEventListener('drop', async (event) => {
+                    event.preventDefault();
+                    parentFolderEl.removeClass('ge-dragover');
+                    
+                    const filePath = (event as any).dataTransfer?.getData('text/plain');
+                    if (!filePath) return;
+                    
+                    const cleanedFilePath = filePath.replace(/!?\[\[(.*?)\]\]/, '$1');
+                    
+                    const file = this.app.vault.getAbstractFileByPath(cleanedFilePath);
+                    const folder = this.app.vault.getAbstractFileByPath(parentPath);
+                    
+                    if (file instanceof TFile && folder instanceof TFolder) {
+                        try {
+                            const newPath = `${parentPath}/${file.name}`;
+                            await this.app.fileManager.renameFile(file, newPath);
+                            this.render();
+                        } catch (error) {
+                            console.error('An error occurred while moving the file to parent folder:', error);
+                        }
+                    }
+                });
+            }
+        }
+
         // 如果是資料夾模式，先顯示所有子資料夾
         if (this.sourceMode === 'folder' && this.searchQuery === '') {
             const currentFolder = this.app.vault.getAbstractFileByPath(this.sourcePath || '/');
