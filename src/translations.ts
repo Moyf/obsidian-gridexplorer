@@ -125,8 +125,8 @@ export const TRANSLATIONS: Translations = {
         'summary_filter_settings': '摘要過濾設定',
         'filter_headings': '過濾標題',
         'filter_headings_desc': '在摘要中過濾掉 Markdown 標題',
-        'filter_links': '過濾引用鏈接',
-        'filter_links_desc': '在摘要中過濾掉 Markdown 引用鏈接',
+        'filter_blockquotes': '過濾引用區塊',
+        'filter_blockquotes_desc': '在摘要中過濾掉以 > 開頭的引用區塊',
     },
     'en': {
         // Notifications
@@ -234,8 +234,8 @@ export const TRANSLATIONS: Translations = {
         'summary_filter_settings': 'Summary Filter Settings',
         'filter_headings': 'Filter headings',
         'filter_headings_desc': 'Filter out Markdown headings in the summary',
-        'filter_links': 'Filter links',
-        'filter_links_desc': 'Filter out Markdown links in the summary',
+        'filter_blockquotes': 'Filter blockquotes',
+        'filter_blockquotes_desc': 'Filter out blockquotes (lines starting with >) in the summary',
         
         // Show "Return to Parent Folder" option setting
         'show_parent_folder_item': 'Show "Return to Parent Folder"',
@@ -341,15 +341,15 @@ export const TRANSLATIONS: Translations = {
         'filter_folders': '筛选文件夹...',
         
         // 網格外觀設定
-        'grid_appearance': '網格外觀',
-        'grid_behavior': '網格行為',
+        'grid_appearance': '网格外观',
+        'grid_behavior': '网格行为',
         
         // 摘要過濾設定
         'summary_filter_settings': '摘要過濾設定',
         'filter_headings': '過濾標題',
         'filter_headings_desc': '在摘要中過濾掉 Markdown 標題',
-        'filter_links': '過濾引用鏈接',
-        'filter_links_desc': '在摘要中過濾掉 Markdown 引用鏈接',
+        'filter_blockquotes': '過濾引用區塊',
+        'filter_blockquotes_desc': '在摘要中過濾掉以 > 開頭的引用區塊',
         
     },
     'ja': {
@@ -458,7 +458,7 @@ export const TRANSLATIONS: Translations = {
         'summary_filter_settings': '要約フィルター設定',
         'filter_headings': '見出しをフィルター',
         'filter_headings_desc': '要約内のMarkdown見出しをフィルター',
-        'filter_links': 'リンクをフィルター',
-        'filter_links_desc': '要約内のMarkdownリンクをフィルター',
+        'filter_blockquotes': '引用ブロックをフィルター',
+        'filter_blockquotes_desc': '要約内の > で始まる引用ブロックをフィルター',
     },
 }

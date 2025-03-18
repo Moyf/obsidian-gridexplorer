@@ -19,7 +19,7 @@ export interface GallerySettings {
     defaultOpenLocation: string; // 預設開啟位置
     showParentFolderItem: boolean; // 是否显示"返回上级文件夹"选项
     filterHeadings: boolean; // 是否过滤标题
-    filterLinks: boolean; // 是否过滤引用链接
+    filterBlockquotes: boolean; // 是否过滤引用块
 }
 
 // 預設設定
@@ -38,9 +38,9 @@ export const DEFAULT_SETTINGS: GallerySettings = {
     searchMediaFiles: false, // 預設搜尋時也包含圖片和影片
     showVideoThumbnails: false, // 預設不顯示影片縮圖
     defaultOpenLocation: 'tab', // 預設開啟位置：新分頁
-    showParentFolderItem: true, // 預設顯示"返回上级文件夹"選項
+    showParentFolderItem: false, // 預設不顯示"返回上级文件夹"选项
     filterHeadings: true, // 預設過濾標題
-    filterLinks: true, // 預設過濾引用鏈接
+    filterBlockquotes: true, // 預設過濾引用區塊
 };
 
 // 設定頁面類別
@@ -295,13 +295,13 @@ export class GridExplorerSettingTab extends PluginSettingTab {
 
         // 过滤引用设置
         new Setting(containerEl)
-            .setName(t('filter_links'))
-            .setDesc(t('filter_links_desc'))
+            .setName(t('filter_blockquotes'))
+            .setDesc(t('filter_blockquotes_desc'))
             .addToggle(toggle => {
                 toggle
-                    .setValue(this.plugin.settings.filterLinks)
+                    .setValue(this.plugin.settings.filterBlockquotes)
                     .onChange(async (value) => {
-                        this.plugin.settings.filterLinks = value;
+                        this.plugin.settings.filterBlockquotes = value;
                         await this.plugin.saveSettings();
                     });
             });

@@ -772,10 +772,14 @@ export class GridView extends ItemView {
                             // 先移除代码块和注释
                             let contentWithoutMediaLinks = contentWithoutFrontmatter.replace(/```[\s\S]*?```|<!--[\s\S]*?-->/g, '');
                             
-                            // 根据设置过滤引用链接
-                            if (this.plugin.settings.filterLinks) {
-                                contentWithoutMediaLinks = contentWithoutMediaLinks.replace(/!?(?:\[[^\]]*\]\([^)]+\)|\[\[[^\]]+\]\])/g, '');
+                            // 根据设置过滤引用（以 > 开头的内容）
+                            if (this.plugin.settings.filterBlockquotes) {
+                                // 过滤掉所有以 > 开头的行
+                                contentWithoutMediaLinks = contentWithoutMediaLinks.replace(/^>\s.*$/gm, '');
                             }
+                            
+                            // 过滤掉链接和图片
+                            contentWithoutMediaLinks = contentWithoutMediaLinks.replace(/!?(?:\[[^\]]*\]\([^)]+\)|\[\[[^\]]+\]\])/g, '');
                             
                             // 根据设置过滤标题
                             if (this.plugin.settings.filterHeadings) {
