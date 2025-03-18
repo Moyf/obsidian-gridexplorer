@@ -237,10 +237,6 @@ export const TRANSLATIONS: Translations = {
         'filter_blockquotes': 'Filter blockquotes',
         'filter_blockquotes_desc': 'Filter out blockquotes (lines starting with >) in the summary',
         
-        // Show "Return to Parent Folder" option setting
-        'show_parent_folder_item': 'Show "Return to Parent Folder"',
-        'show_parent_folder_item_desc': 'Show "Return to Parent Folder" option as the first item in the grid',
-        'parent_folder': 'Parent Folder',
     },
     'zh': {
         // 通知信息
