@@ -17,6 +17,8 @@ export interface GallerySettings {
     searchMediaFiles: boolean;
     showVideoThumbnails: boolean;
     defaultOpenLocation: string; // 預設開啟位置
+    filterHeadings: boolean; // 是否过滤标题
+    filterLinks: boolean; // 是否过滤引用链接
 }
 
 // 預設設定
@@ -34,7 +36,9 @@ export const DEFAULT_SETTINGS: GallerySettings = {
     showMediaFiles: true, // 預設顯示圖片和影片
     searchMediaFiles: false, // 預設搜尋時也包含圖片和影片
     showVideoThumbnails: false, // 預設不顯示影片縮圖
-    defaultOpenLocation: 'tab' // 預設開啟位置：新分頁
+    defaultOpenLocation: 'tab', // 預設開啟位置：新分頁
+    filterHeadings: true, // 預設過濾標題
+    filterLinks: true, // 預設過濾引用鏈接
 };
 
 // 設定頁面類別
@@ -251,6 +255,36 @@ export class GridExplorerSettingTab extends PluginSettingTab {
                     .setDynamicTooltip()
                     .onChange(async (value) => {
                         this.plugin.settings.summaryLength = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
+
+
+        // 摘要过滤设置区域
+        containerEl.createEl('h3', { text: t('summary_filter_settings') });
+
+        // 过滤标题设置
+        new Setting(containerEl)
+            .setName(t('filter_headings'))
+            .setDesc(t('filter_headings_desc'))
+            .addToggle(toggle => {
+                toggle
+                    .setValue(this.plugin.settings.filterHeadings)
+                    .onChange(async (value) => {
+                        this.plugin.settings.filterHeadings = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
+
+        // 过滤引用设置
+        new Setting(containerEl)
+            .setName(t('filter_links'))
+            .setDesc(t('filter_links_desc'))
+            .addToggle(toggle => {
+                toggle
+                    .setValue(this.plugin.settings.filterLinks)
+                    .onChange(async (value) => {
+                        this.plugin.settings.filterLinks = value;
                         await this.plugin.saveSettings();
                     });
             });
