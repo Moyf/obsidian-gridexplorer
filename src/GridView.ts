@@ -263,10 +263,10 @@ export class GridView extends ItemView {
         const scrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
 
         // 保存選中項目的檔案路徑（如果有）
-        let selectedFilePath = null;
+        let selectedFilePath: string | null = null;
         if (this.selectedItemIndex >= 0 && this.selectedItemIndex < this.gridItems.length) {
             const selectedItem = this.gridItems[this.selectedItemIndex];
-            selectedFilePath = selectedItem.dataset.filePath;
+            selectedFilePath = selectedItem.dataset.filePath || null;
         }
 
         // 清空整個容器
