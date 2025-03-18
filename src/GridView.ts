@@ -581,6 +581,24 @@ export class GridView extends ItemView {
                     const titleContainer = contentArea.createDiv('ge-title-container');
                     const titleEl = titleContainer.createEl('span', { cls: 'ge-title', text: `📁 ${folder.name}` });
                     
+                    // 檢查同名筆記是否存在
+                    const notePath = `${folder.path}/${folder.name}.md`;
+                    const noteFile = this.app.vault.getAbstractFileByPath(notePath);
+                    
+                    if (noteFile instanceof TFile) {
+                        // 使用 span 代替 button，只顯示圖示
+                        const noteIcon = titleContainer.createEl('span', {
+                            cls: 'ge-note-button'
+                        });
+                        setIcon(noteIcon, 'ellipsis-vertical');
+                        
+                        // 點擊圖示時開啟同名筆記
+                        noteIcon.addEventListener('click', (e) => {
+                            e.stopPropagation(); // 防止觸發資料夾的點擊事件
+                            this.app.workspace.getLeaf(false).openFile(noteFile);
+                        });
+                    }
+                    
                     // 點擊時進入子資料夾
                     folderEl.addEventListener('click', () => {
                         this.setSource('folder', folder.path);

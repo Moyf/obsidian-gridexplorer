@@ -28,7 +28,7 @@ export const DEFAULT_SETTINGS: GallerySettings = {
     gridItemHeight: 0, // 網格項目高度，預設 0
     imageAreaWidth: 100, // 圖片區域寬度，預設 100
     imageAreaHeight: 100, // 圖片區域高度，預設 100
-    titleFontSize: 1.1, // 筆記標題的字型大小，預設 1.1
+    titleFontSize: 1.0, // 筆記標題的字型大小，預設 1.0
     summaryLength: 100, // 筆記摘要的字數，預設 100
     enableFileWatcher: true, // 預設啟用檔案監控
     showMediaFiles: true, // 預設顯示圖片和影片
@@ -278,7 +278,10 @@ export class GridExplorerSettingTab extends PluginSettingTab {
                 // 新增所有資料夾作為選項
                 folders.forEach(folder => {
                     // 只顯示尚未被忽略的資料夾
-                    if (!this.plugin.settings.ignoredFolders.includes(folder.path)) {
+                    const isIgnored = this.plugin.settings.ignoredFolders.some(ignoredPath =>
+                        folder.path === ignoredPath || folder.path.startsWith(ignoredPath + '/')
+                    );
+                    if (!isIgnored) {
                         dropdown.addOption(folder.path, folder.path);
                     }
                 });
