@@ -341,11 +341,11 @@ export const TRANSLATIONS: Translations = {
         'grid_behavior': '网格行为',
         
         // 摘要過濾設定
-        'summary_filter_settings': '摘要過濾設定',
-        'filter_headings': '過濾標題',
-        'filter_headings_desc': '在摘要中過濾掉 Markdown 標題',
-        'filter_blockquotes': '過濾引用區塊',
-        'filter_blockquotes_desc': '在摘要中過濾掉以 > 開頭的引用區塊',
+        'summary_filter_settings': '摘要过滤设置',
+        'filter_headings': '过滤标题',
+        'filter_headings_desc': '在摘要中过滤掉 Markdown 标题（以 # 开头的行）',
+        'filter_blockquotes': '过滤引用区块',
+        'filter_blockquotes_desc': '在摘要中过滤引用块（以 > 开头的行）',
         
     },
     'ja': {
