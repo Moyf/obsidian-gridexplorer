@@ -542,7 +542,7 @@ export class GridView extends ItemView {
             
             const contentArea = parentFolderEl.createDiv('ge-content-area');
             const titleContainer = contentArea.createDiv('ge-title-container');
-            const titleEl = titleContainer.createEl('span', { cls: 'ge-title', text: `📁 ${t('parent_folder')} (..)` });
+            const titleEl = titleContainer.createEl('span', { cls: 'ge-title', text: `⤴️ ${t('parent_folder')}` });
             
             // 点击事件 - 返回上级文件夹
             parentFolderEl.addEventListener('click', () => {
