@@ -263,10 +263,10 @@ export class GridView extends ItemView {
         const scrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
 
         // 保存選中項目的檔案路徑（如果有）
-        let selectedFilePath = null;
+        let selectedFilePath: string | null = null;
         if (this.selectedItemIndex >= 0 && this.selectedItemIndex < this.gridItems.length) {
             const selectedItem = this.gridItems[this.selectedItemIndex];
-            selectedFilePath = selectedItem.dataset.filePath;
+            selectedFilePath = selectedItem.dataset.filePath || null;
         }
 
         // 清空整個容器
@@ -712,10 +712,14 @@ export class GridView extends ItemView {
                             // 先移除代码块和注释
                             let contentWithoutMediaLinks = contentWithoutFrontmatter.replace(/```[\s\S]*?```|<!--[\s\S]*?-->/g, '');
                             
-                            // 根据设置过滤引用链接
-                            if (this.plugin.settings.filterLinks) {
-                                contentWithoutMediaLinks = contentWithoutMediaLinks.replace(/!?(?:\[[^\]]*\]\([^)]+\)|\[\[[^\]]+\]\])/g, '');
+                            // 根据设置过滤引用（以 > 开头的内容）
+                            if (this.plugin.settings.filterBlockquotes) {
+                                // 过滤掉所有以 > 开头的行
+                                contentWithoutMediaLinks = contentWithoutMediaLinks.replace(/^>\s.*$/gm, '');
                             }
+                            
+                            // 过滤掉链接和图片
+                            contentWithoutMediaLinks = contentWithoutMediaLinks.replace(/!?(?:\[[^\]]*\]\([^)]+\)|\[\[[^\]]+\]\])/g, '');
                             
                             // 根据设置过滤标题
                             if (this.plugin.settings.filterHeadings) {
