@@ -116,6 +116,17 @@ export const TRANSLATIONS: Translations = {
         'searching': '搜尋中...',
         'no_files': '沒有找到任何檔案',
         'filter_folders': '篩選資料夾...',
+                
+        // 網格外觀設定
+        'grid_appearance': '網格外觀',
+        'grid_behavior': '網格行為',
+
+        // 摘要過濾設定
+        'summary_filter_settings': '摘要過濾設定',
+        'filter_headings': '過濾標題',
+        'filter_headings_desc': '在摘要中過濾掉 Markdown 標題',
+        'filter_links': '過濾引用鏈接',
+        'filter_links_desc': '在摘要中過濾掉 Markdown 引用鏈接',
     },
     'en': {
         // Notifications
@@ -154,7 +165,7 @@ export const TRANSLATIONS: Translations = {
         'sort_random': 'Random',
 
         // Settings
-        'grid_view_settings': 'Grid view settings',
+        'grid_view_settings': 'Grid View Settings',
         'media_files_settings': 'Media files settings',
         'show_media_files': 'Show images and videos',
         'show_media_files_desc': 'Display image and video files in the grid view',
@@ -214,6 +225,22 @@ export const TRANSLATIONS: Translations = {
         'searching': 'Searching...',
         'no_files': 'No files found',
         'filter_folders': 'Filter folders...',
+        
+        // Grid appearance settings
+        'grid_appearance': 'Grid Appearance',
+        'grid_behavior': 'Grid Behavior',
+        
+        // Summary filter settings
+        'summary_filter_settings': 'Summary Filter Settings',
+        'filter_headings': 'Filter headings',
+        'filter_headings_desc': 'Filter out Markdown headings in the summary',
+        'filter_links': 'Filter links',
+        'filter_links_desc': 'Filter out Markdown links in the summary',
+        
+        // Show "Return to Parent Folder" option setting
+        'show_parent_folder_item': 'Show "Return to Parent Folder"',
+        'show_parent_folder_item_desc': 'Show "Return to Parent Folder" option as the first item in the grid',
+        'parent_folder': 'Parent Folder',
     },
     'zh': {
         // 通知信息
@@ -312,6 +339,18 @@ export const TRANSLATIONS: Translations = {
         'searching': '搜索中...',
         'no_files': '没有找到任何文件',
         'filter_folders': '筛选文件夹...',
+        
+        // 網格外觀設定
+        'grid_appearance': '網格外觀',
+        'grid_behavior': '網格行為',
+        
+        // 摘要過濾設定
+        'summary_filter_settings': '摘要過濾設定',
+        'filter_headings': '過濾標題',
+        'filter_headings_desc': '在摘要中過濾掉 Markdown 標題',
+        'filter_links': '過濾引用鏈接',
+        'filter_links_desc': '在摘要中過濾掉 Markdown 引用鏈接',
+        
     },
     'ja': {
         // 通知メッジ
@@ -410,5 +449,16 @@ export const TRANSLATIONS: Translations = {
         'searching': '検索中...',
         'no_files': 'ファイルが見つかりません',
         'filter_folders': 'フォルダをフィルタリング...',
+        
+        // グリッド外観設定
+        'grid_appearance': 'グリッドの外観',
+        'grid_behavior': 'グリッドの動作',
+        
+        // 要約フィルター設定
+        'summary_filter_settings': '要約フィルター設定',
+        'filter_headings': '見出しをフィルター',
+        'filter_headings_desc': '要約内のMarkdown見出しをフィルター',
+        'filter_links': 'リンクをフィルター',
+        'filter_links_desc': '要約内のMarkdownリンクをフィルター',
     },
 }

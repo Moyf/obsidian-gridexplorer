@@ -18,6 +18,8 @@ export interface GallerySettings {
     showVideoThumbnails: boolean;
     defaultOpenLocation: string; // 預設開啟位置
     showParentFolderItem: boolean; // 是否显示"返回上级文件夹"选项
+    filterHeadings: boolean; // 是否过滤标题
+    filterLinks: boolean; // 是否过滤引用链接
 }
 
 // 預設設定
@@ -37,6 +39,8 @@ export const DEFAULT_SETTINGS: GallerySettings = {
     showVideoThumbnails: false, // 預設不顯示影片縮圖
     defaultOpenLocation: 'tab', // 預設開啟位置：新分頁
     showParentFolderItem: true, // 預設顯示"返回上级文件夹"選項
+    filterHeadings: true, // 預設過濾標題
+    filterLinks: true, // 預設過濾引用鏈接
 };
 
 // 設定頁面類別
@@ -266,6 +270,32 @@ export class GridExplorerSettingTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.showParentFolderItem)
                     .onChange(async (value) => {
                         this.plugin.settings.showParentFolderItem = value;
+
+        // 摘要过滤设置区域
+        containerEl.createEl('h3', { text: t('summary_filter_settings') });
+
+        // 过滤标题设置
+        new Setting(containerEl)
+            .setName(t('filter_headings'))
+            .setDesc(t('filter_headings_desc'))
+            .addToggle(toggle => {
+                toggle
+                    .setValue(this.plugin.settings.filterHeadings)
+                    .onChange(async (value) => {
+                        this.plugin.settings.filterHeadings = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
+
+        // 过滤引用设置
+        new Setting(containerEl)
+            .setName(t('filter_links'))
+            .setDesc(t('filter_links_desc'))
+            .addToggle(toggle => {
+                toggle
+                    .setValue(this.plugin.settings.filterLinks)
+                    .onChange(async (value) => {
+                        this.plugin.settings.filterLinks = value;
                         await this.plugin.saveSettings();
                     });
             });

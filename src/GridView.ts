@@ -768,12 +768,23 @@ export class GridView extends ItemView {
                             } else {
                                 contentWithoutFrontmatter = content.substring(frontMatterInfo.contentStart).slice(0, summaryLength + summaryLength);
                             }
-                            let contentWithoutMediaLinks = contentWithoutFrontmatter.replace(/```[\s\S]*?```|<!--[\s\S]*?-->|!?(?:\[[^\]]*\]\([^)]+\)|\[\[[^\]]+\]\])/g, '').trim();
-
-                            //把開頭的標題整行刪除
-                            if (contentWithoutMediaLinks.startsWith('# ') || contentWithoutMediaLinks.startsWith('## ') || contentWithoutMediaLinks.startsWith('### ')) {
-                                contentWithoutMediaLinks = contentWithoutMediaLinks.split('\n').slice(1).join('\n');
+                            
+                            // 先移除代码块和注释
+                            let contentWithoutMediaLinks = contentWithoutFrontmatter.replace(/```[\s\S]*?```|<!--[\s\S]*?-->/g, '');
+                            
+                            // 根据设置过滤引用链接
+                            if (this.plugin.settings.filterLinks) {
+                                contentWithoutMediaLinks = contentWithoutMediaLinks.replace(/!?(?:\[[^\]]*\]\([^)]+\)|\[\[[^\]]+\]\])/g, '');
                             }
+                            
+                            // 根据设置过滤标题
+                            if (this.plugin.settings.filterHeadings) {
+                                // 移除所有级别的标题行
+                                contentWithoutMediaLinks = contentWithoutMediaLinks.replace(/^#{1,6}\s+.*$/gm, '');
+                            }
+                            
+                            // 去除多余的空行和空格
+                            contentWithoutMediaLinks = contentWithoutMediaLinks.replace(/\n{2,}/g, '\n\n').trim();
                             
                             // 只取前 summaryLength 個字符作為預覽
                             const preview = contentWithoutMediaLinks.slice(0, summaryLength) + (contentWithoutMediaLinks.length > summaryLength ? '...' : '');
