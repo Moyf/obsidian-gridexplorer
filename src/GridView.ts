@@ -1628,7 +1628,9 @@ export class GridView extends ItemView {
                                     .setTitle(t('open_folder_note'))
                                     .setIcon('panel-left-open')
                                     .onClick(() => {
-                                        this.app.workspace.getLeaf().openFile(noteFile);
+                                        if (noteFile instanceof TFile) {
+                                            this.app.workspace.getLeaf().openFile(noteFile);
+                                        }
                                     });
                             });
                             //編輯資料夾筆記設定
@@ -2983,6 +2985,49 @@ export class GridView extends ItemView {
             } else {
                 this.app.workspace.trigger('file-menu', menu, file);
             }
+
+            // 添加置顶和最小化显示菜单项（仅限 md 文件且在文件夹模式下）
+            if (file.extension === 'md' && this.sourceMode === 'folder' && this.sourcePath !== '/') {
+                // 获取当前文件的状态
+                const fileCache = this.app.metadataCache.getFileCache(file);
+                const isCurrentlyPinned = this.pinnedList.includes(file.name);
+                const isCurrentlyMinimized = fileCache?.frontmatter?.display === 'minimized';
+
+                // 置顶/取消置顶选项
+                menu.addItem((item) => {
+                    item
+                        .setTitle(isCurrentlyPinned ? t('unpin') : t('pin'))
+                        .setIcon(isCurrentlyPinned ? 'pin-off' : 'pin')
+                        .onClick(async () => {
+                            await this.togglePinNote(file);
+                        });
+                });
+
+                // 最小化显示切换选项
+                menu.addItem((item) => {
+                    item
+                        .setTitle(isCurrentlyMinimized ? t('display_normal') : t('display_minimized'))
+                        .setIcon(isCurrentlyMinimized ? 'maximize-2' : 'minimize-2')
+                        .onClick(async () => {
+                            await this.toggleMinimizeNote(file);
+                        });
+                });
+
+                menu.addSeparator();
+            }
+
+            // 设置笔记属性选项（单个文件）
+            if (selectedFiles.length === 1 && file.extension === 'md') {
+                menu.addItem((item) => {
+                    item
+                        .setTitle(t('set_note_attribute'))
+                        .setIcon('palette')
+                        .onClick(() => {
+                            showNoteSettingsModal(this.app, this.plugin, file);
+                        });
+                });
+            }
+
             // 新增在新分頁開啟選項
             menu.addItem((item) => {
                 item
@@ -3480,5 +3525,72 @@ export class GridView extends ItemView {
             this.recentSources = state.state.recentSources ?? [];
             this.render();
         }
+    }
+
+    // 切换笔记置顶状态
+    async togglePinNote(file: TFile) {
+        const folder = file.parent;
+        if (!folder || folder === this.app.vault.getRoot()) return;
+        
+        const notePath = `${folder.path}/${folder.name}.md`;
+        let noteFile = this.app.vault.getAbstractFileByPath(notePath);
+        
+        // 如果文件夹笔记不存在，创建一个
+        if (!(noteFile instanceof TFile)) {
+            const isCurrentlyPinned = this.pinnedList.includes(file.name);
+            if (!isCurrentlyPinned) {
+                const initialContent = `---\npinned:\n  - ${file.name}\n---\n`;
+                noteFile = await this.app.vault.create(notePath, initialContent);
+            } else {
+                return; // 如果要取消置顶但文件夹笔记不存在，直接返回
+            }
+        }
+        
+        // 更新置顶列表
+        await this.app.fileManager.processFrontMatter(noteFile as TFile, (frontmatter) => {
+            let list: string[] = Array.isArray(frontmatter['pinned']) ? frontmatter['pinned'] : [];
+            const isCurrentlyPinned = list.includes(file.name);
+            
+            if (isCurrentlyPinned) {
+                // 取消置顶
+                list = list.filter(n => n !== file.name);
+            } else {
+                // 添加置顶
+                list.push(file.name);
+            }
+            
+            if (list.length > 0) {
+                frontmatter['pinned'] = list;
+            } else {
+                delete frontmatter['pinned'];
+            }
+        });
+        
+        // 等待一小段时间确保 metadata cache 更新
+        setTimeout(() => {
+            this.render();
+        }, 200);
+    }
+    
+    // 切换笔记最小化显示状态
+    async toggleMinimizeNote(file: TFile) {
+        await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
+            const isCurrentlyMinimized = frontmatter['display'] === 'minimized';
+            
+            if (isCurrentlyMinimized) {
+                // 切换为正常显示
+                if (frontmatter['display'] === 'minimized') {
+                    delete frontmatter['display'];
+                }
+            } else {
+                // 切换为最小化显示
+                frontmatter['display'] = 'minimized';
+            }
+        });
+        
+        // 等待一小段时间确保 metadata cache 更新
+        setTimeout(() => {
+            this.render();
+        }, 200);
     }
 }
